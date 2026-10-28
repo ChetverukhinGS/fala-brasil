@@ -1,0 +1,1238 @@
+<title>Fala Brasil</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700&family=Golos+Text:wght@400;500;600;700&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+/* layout: app shell — desktop: fixed left rail + single content column; phone: compact top bar + bottom tab bar; lesson player is a full-screen layer */
+:root{
+  --bg:#EDF2F0; --surface:#FFFFFF; --surface-2:#F5F9F7; --surface-3:#E4EDEA;
+  --ink:#0B1F22; --muted:#55736F; --line:#D5E2DE;
+  --teal:#0E6E63; --teal-ink:#07443D; --teal-soft:#D3EBE4;
+  --coral:#CE3F27; --coral-soft:#FBE2DC;
+  --gold:#C88A14; --gold-soft:#F7EBCE;
+  --ok:#1A7F4F; --ok-soft:#D8EEE1;
+  --shadow:0 1px 2px rgba(11,31,34,.06), 0 8px 24px -16px rgba(11,31,34,.35);
+  --btn-fg:#FFFFFF;
+  --r:14px; --r-lg:22px;
+  --font-display:'Unbounded','Golos Text',system-ui,sans-serif;
+  --font-body:'Golos Text','Helvetica Neue',system-ui,sans-serif;
+  --font-pt:'Spectral','Iowan Old Style',Georgia,serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#071314; --surface:#0E1F20; --surface-2:#13292A; --surface-3:#1B3537;
+  --ink:#E2EFEB; --muted:#8CABA6; --line:#20393B;
+  --teal:#3FC0A8; --teal-ink:#BFEDE2; --teal-soft:#113230;
+  --coral:#FF8468; --coral-soft:#3A1A14;
+  --gold:#E9BC55; --gold-soft:#36290F;
+  --ok:#49C185; --ok-soft:#10301F;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 30px -18px rgba(0,0,0,.8);
+  --btn-fg:#04201C;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#071314; --surface:#0E1F20; --surface-2:#13292A; --surface-3:#1B3537;
+  --ink:#E2EFEB; --muted:#8CABA6; --line:#20393B;
+  --teal:#3FC0A8; --teal-ink:#BFEDE2; --teal-soft:#113230;
+  --coral:#FF8468; --coral-soft:#3A1A14;
+  --gold:#E9BC55; --gold-soft:#36290F;
+  --ok:#49C185; --ok-soft:#10301F;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 30px -18px rgba(0,0,0,.8);
+  --btn-fg:#04201C;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.45;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--surface);z-index:60}
+h1,h2,h3{font-family:var(--font-display);font-weight:600;letter-spacing:-.01em;text-wrap:balance;margin:0}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+:focus-visible{outline:2.5px solid var(--teal);outline-offset:2px;border-radius:6px}
+.pt{font-family:var(--font-pt)}
+.tnum{font-variant-numeric:tabular-nums}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* ---------- app shell ---------- */
+#app{display:grid;min-height:100%;grid-template-columns:1fr}
+.rail{display:none}
+.main{min-width:0;display:flex;flex-direction:column}
+.wrap{width:100%;max-width:780px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px 112px}
+
+/* top bar (phone) */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;background:var(--surface);border-bottom:1px solid var(--line)}
+.topbar-in{display:flex;align-items:center;gap:10px;max-width:780px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px}
+.brand{font-family:var(--font-display);font-weight:700;font-size:16px;letter-spacing:-.02em;display:flex;align-items:center;gap:8px}
+.brand i{width:10px;height:18px;border-radius:3px;background:linear-gradient(180deg,var(--teal) 0 55%,var(--gold) 55% 100%);display:block}
+.spacer{flex:1}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:6px 11px;font-size:13px;font-weight:600;white-space:nowrap}
+.chip b{font-variant-numeric:tabular-nums}
+.chip.flame{background:var(--gold-soft);border-color:transparent;color:var(--gold)}
+.chip.xp{background:var(--teal-soft);border-color:transparent;color:var(--teal)}
+.iconbtn{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--surface-2);border:1px solid var(--line);font-size:17px}
+.iconbtn:active{transform:scale(.96)}
+
+/* wave band */
+.wave{height:9px;background-repeat:repeat-x;background-size:auto 9px;opacity:.5;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='9' viewBox='0 0 44 9'%3E%3Cpath d='M0 7C6 7 7 2 13 2s7 5 13 5 7-5 13-5 7 5 13 5' fill='none' stroke='%230E6E63' stroke-width='2.4'/%3E%3C/svg%3E")}
+
+/* bottom tabs (phone) */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--surface);border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+.tabs-in{display:grid;grid-template-columns:repeat(4,1fr);max-width:780px;margin:0 auto}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 4px 8px;font-size:11px;font-weight:600;color:var(--muted)}
+.tab span.ic{font-size:20px;line-height:1}
+.tab[aria-selected="true"]{color:var(--teal)}
+.tab[aria-selected="true"] span.ic{transform:translateY(-1px)}
+
+/* ---------- cards & common ---------- */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow)}
+.sec-title{font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:26px 0 10px}
+.sec-title:first-child{margin-top:4px}
+.muted{color:var(--muted)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:13px 22px;border-radius:var(--r);background:var(--teal);color:var(--btn-fg);font-weight:700;font-size:15px;letter-spacing:.01em;box-shadow:0 2px 0 var(--teal-ink)}
+.btn:active{transform:translateY(1px);box-shadow:none}
+.btn.ghost{background:var(--surface-2);color:var(--ink);box-shadow:none;border:1px solid var(--line)}
+.btn.block{width:100%}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.btn.coral{background:var(--coral);box-shadow:0 2px 0 rgba(0,0,0,.18);color:#fff}
+
+/* hero / daily */
+.hero{padding:18px 18px 16px;border-radius:var(--r-lg);background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);overflow:hidden}
+.hero h1{font-size:clamp(20px,5.2vw,26px);margin-bottom:4px}
+.hero p{margin:0;color:var(--muted);font-size:14px}
+.goalrow{display:flex;align-items:center;gap:12px;margin-top:14px}
+.ring{width:56px;height:56px;flex:0 0 auto;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:700;background:conic-gradient(var(--teal) var(--p,0%), var(--surface-3) 0)}
+.ring i{width:44px;height:44px;border-radius:50%;background:var(--surface);display:grid;place-items:center;font-style:normal;font-variant-numeric:tabular-nums}
+.bar{height:9px;border-radius:999px;background:var(--surface-3);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--teal);border-radius:999px;transition:width .35s ease}
+
+/* units */
+.unit{margin-top:14px;border-radius:var(--r-lg);border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow);overflow:hidden}
+.unit-head{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--surface-2);border-bottom:1px solid var(--line)}
+.unit-num{width:34px;height:34px;flex:0 0 auto;border-radius:11px;background:var(--teal);color:var(--btn-fg);display:grid;place-items:center;font-family:var(--font-display);font-weight:700;font-size:14px}
+.unit-head h3{font-size:15px}
+.unit-head .pt{display:block;font-size:12.5px;color:var(--muted);font-family:var(--font-pt);font-style:italic}
+.lessons{display:flex;flex-direction:column}
+.lesson{display:flex;align-items:center;gap:12px;padding:13px 16px;text-align:left;width:100%;border-top:1px solid var(--line)}
+.lesson:first-child{border-top:0}
+.lesson:active{background:var(--surface-2)}
+.dot{width:30px;height:30px;flex:0 0 auto;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:700;background:var(--surface-3);color:var(--muted)}
+.dot.done{background:var(--ok-soft);color:var(--ok)}
+.dot.now{background:var(--teal-soft);color:var(--teal);box-shadow:0 0 0 3px var(--teal-soft)}
+.lesson-t{flex:1;min-width:0}
+.lesson-t b{display:block;font-size:15px;font-weight:600}
+.lesson-t small{color:var(--muted);font-size:12.5px}
+.lesson .go{font-size:13px;font-weight:700;color:var(--teal)}
+
+/* review tab */
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{padding:14px;border-radius:var(--r);background:var(--surface);border:1px solid var(--line)}
+.stat b{display:block;font-family:var(--font-display);font-size:22px;font-variant-numeric:tabular-nums;line-height:1.1}
+.stat small{color:var(--muted);font-size:12px}
+
+/* lists (phrases / grammar) */
+.row{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.row .txt{flex:1;min-width:0}
+.row .ptw{font-family:var(--font-pt);font-size:17px;font-weight:600}
+.row .ruw{font-size:14px;color:var(--muted)}
+.row .trw{font-size:12.5px;color:var(--teal);font-weight:500}
+.play{width:38px;height:38px;flex:0 0 auto;border-radius:11px;background:var(--teal-soft);color:var(--teal);display:grid;place-items:center;font-size:15px}
+.search{width:100%;min-height:46px;padding:11px 14px;border-radius:var(--r);border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit}
+details.acc{border-top:1px solid var(--line)}
+details.acc:first-of-type{border-top:0}
+details.acc>summary{list-style:none;cursor:pointer;padding:14px;font-weight:600;display:flex;gap:10px;align-items:center}
+details.acc>summary::-webkit-details-marker{display:none}
+details.acc>summary::after{content:"+";margin-left:auto;color:var(--muted);font-weight:700}
+details.acc[open]>summary::after{content:"–"}
+.acc-body{padding:0 14px 16px;font-size:14.5px}
+.acc-body p{margin:0 0 10px}
+.acc-body ul{margin:0 0 10px;padding-left:18px}
+.acc-body li{margin:3px 0}
+.ex{display:grid;gap:2px;padding:10px 12px;border-radius:12px;background:var(--surface-2);margin:8px 0}
+.ex b{font-family:var(--font-pt);font-weight:600;font-size:15.5px}
+.ex span{color:var(--muted);font-size:13.5px}
+table.conj{width:100%;border-collapse:collapse;font-size:14px;margin:6px 0 10px}
+table.conj td{padding:6px 8px;border-bottom:1px solid var(--line)}
+table.conj td:first-child{color:var(--muted);width:42%}
+table.conj td:last-child{font-family:var(--font-pt);font-weight:600}
+
+/* ---------- lesson player ---------- */
+.player{position:fixed;inset:0;z-index:70;background:var(--bg);display:flex;flex-direction:column;
+  padding-top:env(safe-area-inset-top,0px)}
+.player-top{display:flex;align-items:center;gap:12px;padding:10px max(16px,env(safe-area-inset-left,0px)) 10px max(16px,env(safe-area-inset-left,0px))}
+.player-top .bar{flex:1}
+.player-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.player-in{max-width:620px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:8px 24px}
+.q-kicker{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.q-prompt{font-size:clamp(20px,5.4vw,27px);font-family:var(--font-display);font-weight:600;line-height:1.25;margin-bottom:6px}
+.q-prompt.pt{font-family:var(--font-pt);font-weight:600}
+.q-sub{color:var(--muted);font-size:14px;margin-bottom:18px}
+.opts{display:grid;gap:10px}
+.opt{display:flex;align-items:center;gap:10px;min-height:56px;padding:12px 14px;border-radius:var(--r);background:var(--surface);border:1.5px solid var(--line);box-shadow:0 1px 0 rgba(11,31,34,.05);text-align:left;font-size:16.5px}
+.opt kbd{display:none;font-family:var(--font-body);font-size:11px;font-weight:700;color:var(--muted);background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:2px 6px;margin-left:auto}
+.opt .pt{font-family:var(--font-pt);font-weight:600}
+.opt[aria-pressed="true"]{border-color:var(--teal);background:var(--teal-soft)}
+.opt.good{border-color:var(--ok);background:var(--ok-soft)}
+.opt.bad{border-color:var(--coral);background:var(--coral-soft)}
+.opt:active{transform:scale(.995)}
+.tiles{display:flex;flex-wrap:wrap;gap:8px}
+.tile{padding:11px 14px;border-radius:12px;background:var(--surface);border:1.5px solid var(--line);font-family:var(--font-pt);font-weight:600;font-size:16.5px;box-shadow:0 1px 0 rgba(11,31,34,.05);min-height:46px}
+.tile.used{opacity:.3;pointer-events:none}
+.slot{min-height:64px;border-bottom:2px dashed var(--line);display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start;padding:8px 0 12px;margin-bottom:18px}
+.inp{width:100%;min-height:56px;padding:14px;border-radius:var(--r);border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font-family:var(--font-pt);font-size:19px;font-weight:600}
+.inp:focus{border-color:var(--teal);outline:none}
+.pairs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pair{min-height:54px;padding:10px 12px;border-radius:12px;background:var(--surface);border:1.5px solid var(--line);font-size:15.5px;text-align:left}
+.pair.sel{border-color:var(--teal);background:var(--teal-soft)}
+.pair.done{opacity:.35;pointer-events:none;border-style:dashed}
+.pair .pt{font-family:var(--font-pt);font-weight:600}
+
+/* teach card */
+.teach{display:grid;gap:4px;justify-items:center;text-align:center;padding:26px 18px;border-radius:var(--r-lg);background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)}
+.teach .w{font-family:var(--font-pt);font-weight:600;font-size:clamp(28px,8vw,40px);line-height:1.15}
+.teach .tr{color:var(--teal);font-weight:600;font-size:14px}
+.teach .ru{font-size:18px;margin-top:6px}
+.teach .play{width:52px;height:52px;border-radius:50%;font-size:20px;margin-top:14px}
+
+/* tip banner */
+.tip{padding:14px 16px;border-radius:var(--r);background:var(--gold-soft);border:1px solid transparent;font-size:14.5px}
+.tip b{font-family:var(--font-display);font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:5px}
+
+/* feedback bar */
+.fb{position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--line);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:12px;padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+.fb-in{max-width:620px;margin:0 auto;display:grid;gap:10px}
+.fb-msg{display:flex;gap:10px;align-items:flex-start;font-size:14.5px}
+.fb-msg .ico{width:26px;height:26px;flex:0 0 auto;border-radius:50%;display:grid;place-items:center;font-size:14px;font-weight:700}
+.fb-msg.ok .ico{background:var(--ok-soft);color:var(--ok)}
+.fb-msg.no .ico{background:var(--coral-soft);color:var(--coral)}
+.fb-msg b{font-family:var(--font-pt);font-weight:600}
+
+/* finish */
+.finish{display:grid;gap:14px;justify-items:center;text-align:center;padding:30px 18px}
+.finish .big{font-family:var(--font-display);font-size:30px}
+
+/* modal */
+.modal{position:fixed;inset:0;z-index:90;display:grid;place-items:end center;background:rgba(7,19,20,.45);padding:0}
+.modal-card{width:100%;max-width:560px;background:var(--surface);border-radius:22px 22px 0 0;padding:20px max(18px,env(safe-area-inset-left,0px)) calc(20px + env(safe-area-inset-bottom,0px));max-height:88vh;overflow-y:auto}
+.field{display:grid;gap:6px;margin:14px 0}
+.field label{font-size:13px;font-weight:600;color:var(--muted)}
+.field input[type=text],.field input[type=number],.field select{min-height:46px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font:inherit}
+.switchrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+input[type=range]{width:100%;accent-color:var(--teal)}
+.profiles{display:grid;gap:8px}
+.pbtn{display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface-2);text-align:left}
+.pbtn.on{border-color:var(--teal);background:var(--teal-soft)}
+.pbtn .av{width:34px;height:34px;border-radius:50%;background:var(--teal);color:var(--btn-fg);display:grid;place-items:center;font-weight:700}
+.pbtn b{display:block;font-size:15px}
+.pbtn small{color:var(--muted);font-size:12px}
+.sync{font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:center;margin-top:4px}
+.sync i{width:7px;height:7px;border-radius:50%;background:var(--muted);display:block}
+.sync.on i{background:var(--ok)}
+
+/* ---------- desktop ---------- */
+@media (min-width:900px){
+  #app{grid-template-columns:268px 1fr}
+  .rail{display:flex;flex-direction:column;gap:6px;position:sticky;top:0;align-self:start;height:100vh;padding:20px 16px;background:var(--surface);border-right:1px solid var(--line);overflow-y:auto}
+  .rail .brand{font-size:19px;margin-bottom:6px}
+  .rail-nav{display:grid;gap:4px;margin-top:10px}
+  .rnav{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:12px;font-weight:600;font-size:15px;color:var(--muted);text-align:left}
+  .rnav span.ic{font-size:18px}
+  .rnav[aria-selected="true"]{background:var(--teal-soft);color:var(--teal)}
+  .rnav:hover{background:var(--surface-2)}
+  .rnav[aria-selected="true"]:hover{background:var(--teal-soft)}
+  .topbar{display:none}
+  .tabs{display:none}
+  .wrap{padding-block:30px 60px;max-width:820px}
+  .statgrid{grid-template-columns:repeat(3,1fr)}
+  .opt kbd{display:inline-block}
+  .opt:hover{border-color:var(--teal)}
+  .tile:hover{border-color:var(--teal)}
+  .player-top{padding-block:16px}
+  .rail-foot{margin-top:auto;display:grid;gap:8px}
+  .lesson:hover{background:var(--surface-2)}
+}
+@media (min-width:1180px){ .wrap{max-width:900px} }
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+<div id="app">
+  <aside class="rail">
+    <div class="brand"><i></i> Fala Brasil</div>
+    <div class="muted" style="font-size:12.5px">Португальский Бразилии с нуля</div>
+    <nav class="rail-nav" role="tablist" aria-label="Разделы">
+      <button class="rnav" role="tab" data-view="course" aria-selected="true"><span class="ic">◉</span> Курс</button>
+      <button class="rnav" role="tab" data-view="review" aria-selected="false"><span class="ic">↻</span> Повторение <b id="rail-due" class="tnum" style="margin-left:auto;color:var(--coral)"></b></button>
+      <button class="rnav" role="tab" data-view="grammar" aria-selected="false"><span class="ic">§</span> Грамматика</button>
+      <button class="rnav" role="tab" data-view="phrases" aria-selected="false"><span class="ic">☰</span> Фразы</button>
+    </nav>
+    <div class="rail-foot">
+      <div class="card" style="padding:12px;box-shadow:none">
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <span class="chip flame">🔥 <b id="d-streak">0</b></span>
+          <span class="chip xp">XP <b id="d-xp">0</b></span>
+        </div>
+        <div class="sync" id="d-sync"><i></i><span>локально</span></div>
+      </div>
+      <button class="pbtn on" id="d-profile" style="box-shadow:none">
+        <span class="av" id="d-av">Я</span>
+        <span><b id="d-pname">Я</b><small>сменить профиль</small></span>
+      </button>
+      <button class="btn ghost" id="d-settings">Настройки</button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-in">
+        <div class="brand"><i></i> Fala Brasil</div>
+        <div class="spacer"></div>
+        <span class="chip flame">🔥 <b id="m-streak">0</b></span>
+        <span class="chip xp">XP <b id="m-xp">0</b></span>
+        <button class="iconbtn" id="m-profile" aria-label="Профиль"><span id="m-av">Я</span></button>
+      </div>
+      <div class="wave"></div>
+    </header>
+
+    <main class="wrap">
+      <!-- КУРС -->
+      <section id="view-course">
+        <div class="hero">
+          <h1 id="hero-h">Oi! Vamos aprender.</h1>
+          <p id="hero-p">Бразильский португальский с нуля — 30 уроков, повторение по памяти и разговорник.</p>
+          <div class="goalrow">
+            <div class="ring" id="goal-ring"><i id="goal-num">0</i></div>
+            <div style="flex:1;min-width:0">
+              <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
+                <span class="muted">Цель на день</span><span class="muted tnum" id="goal-txt">0 / 30 XP</span>
+              </div>
+              <div class="bar"><i id="goal-bar" style="width:0"></i></div>
+            </div>
+          </div>
+          <div style="display:grid;gap:10px;margin-top:16px">
+            <button class="btn block" id="btn-continue">Продолжить урок</button>
+            <button class="btn ghost block" id="btn-review-cta" hidden>Повторить слова: <b id="cta-due" class="tnum">0</b></button>
+          </div>
+        </div>
+        <div class="sec-title">Программа курса</div>
+        <div id="units"></div>
+      </section>
+
+      <!-- ПОВТОРЕНИЕ -->
+      <section id="view-review" hidden>
+        <h1 style="font-size:22px;margin-bottom:4px">Повторение</h1>
+        <p class="muted" style="margin:0 0 16px;font-size:14px">Интервальное повторение: каждое слово возвращается ровно тогда, когда его пора вспомнить.</p>
+        <div class="statgrid">
+          <div class="stat"><b id="st-due" class="tnum">0</b><small>к повторению</small></div>
+          <div class="stat"><b id="st-learn" class="tnum">0</b><small>в изучении</small></div>
+          <div class="stat"><b id="st-known" class="tnum">0</b><small>закреплено</small></div>
+        </div>
+        <div style="margin-top:14px;display:grid;gap:10px">
+          <button class="btn block" id="btn-review">Начать повторение</button>
+          <button class="btn ghost block" id="btn-weak">Тренировать слабые слова</button>
+        </div>
+        <div class="sec-title">Твой словарь</div>
+        <div class="card" id="vocab-list"></div>
+      </section>
+
+      <!-- ГРАММАТИКА -->
+      <section id="view-grammar" hidden>
+        <h1 style="font-size:22px;margin-bottom:4px">Грамматика и звуки</h1>
+        <p class="muted" style="margin:0 0 16px;font-size:14px">Короткие справки: читать можно в любой момент, в уроках они всплывают сами.</p>
+        <div class="card" id="grammar-list"></div>
+      </section>
+
+      <!-- ФРАЗЫ -->
+      <section id="view-phrases" hidden>
+        <h1 style="font-size:22px;margin-bottom:4px">Разговорник</h1>
+        <p class="muted" style="margin:0 0 12px;font-size:14px">Живые фразы для Бразилии — нажми на фразу, чтобы услышать.</p>
+        <input class="search" id="ph-search" type="text" placeholder="Поиск: аптека, аренда, кофе…" autocomplete="off" spellcheck="false">
+        <div id="phrases-list"></div>
+      </section>
+    </main>
+
+    <nav class="tabs" role="tablist" aria-label="Разделы">
+      <div class="tabs-in">
+        <button class="tab" role="tab" data-view="course" aria-selected="true"><span class="ic">◉</span>Курс</button>
+        <button class="tab" role="tab" data-view="review" aria-selected="false"><span class="ic">↻</span>Повторение</button>
+        <button class="tab" role="tab" data-view="grammar" aria-selected="false"><span class="ic">§</span>Грамматика</button>
+        <button class="tab" role="tab" data-view="phrases" aria-selected="false"><span class="ic">☰</span>Фразы</button>
+      </div>
+    </nav>
+  </div>
+</div>
+
+<div id="player-root"></div>
+<div id="modal-root"></div>
+
+<script>
+/* ============ КУРС: данные ============
+   слово/фраза = [pt, ru, транскрипция, (альтернативы для ввода через |)]
+   урок = {t: название, tip:[заголовок, текст], w:[слова], s:[фразы], d:[дрилы]}            */
+const COURSE = [
+{n:'Primeiras palavras', ru:'Первые слова', L:[
+ {t:'Привет и пока',
+  tip:['obrigado / obrigada','Спасибо меняется по говорящему, а не по собеседнику: мужчина всегда говорит <b>obrigado</b>, женщина — <b>obrigada</b>.'],
+  w:[['olá','привет','ола́'],['oi','привет (неформально)','ой'],['bom dia','доброе утро','бон джи́а'],['boa tarde','добрый день (после 12)','боа та́хджи'],['boa noite','добрый вечер, доброй ночи','боа но́йтчи'],['tchau','пока','тча́у'],['até logo','до скорого','ате́ ло́гу'],['até amanhã','до завтра','ате́ аманья́н'],['obrigado','спасибо (от мужчины)','обрига́ду'],['obrigada','спасибо (от женщины)','обрига́да'],['de nada','не за что','джи на́да']],
+  s:[['Bom dia!','Доброе утро!','бон джи́а'],['Boa noite, tchau!','Доброй ночи, пока!','боа но́йтчи, тча́у'],['Obrigado, até logo.','Спасибо, до скорого.','обрига́ду, ате́ ло́гу'],['Olá! Até amanhã.','Привет! До завтра.','ола́, ате́ аманья́н'],['Boa tarde, obrigada.','Добрый день, спасибо.','боа та́хджи, обрига́да']]},
+ {t:'Да, нет, вежливость',
+  tip:['Носовое ão','В <b>não</b> звук идёт «в нос» и заканчивается призвуком у/н: примерно «на́у». Так же читаются cartão, pão, feijão.'],
+  w:[['sim','да','син'],['não','нет, не','на́у'],['por favor','пожалуйста (просьба)','пур фаво́р'],['desculpa','извини','джискуу́па'],['com licença','разрешите, извините','кон лисе́нса'],['tudo bem?','как дела?','ту́ду бэн'],['tudo bem','всё хорошо','ту́ду бэн'],['e você?','а ты?','и восе́'],['legal','классно','лега́у'],['beleza','отлично, договорились','беле́за'],['mais ou menos','так себе','ма́йс о ме́нус']],
+  s:[['Tudo bem?','Как дела?','ту́ду бэн'],['Tudo bem, e você?','Хорошо, а ты?','ту́ду бэн, и восе́'],['Não, obrigado.','Нет, спасибо.','на́у, обрига́ду'],['Com licença, por favor.','Разрешите, пожалуйста.','кон лисе́нса, пур фаво́р'],['Desculpa! Tudo bem.','Извини! Всё в порядке.','джискуу́па, ту́ду бэн']]},
+ {t:'Знакомство',
+  tip:['você — это «ты»','В Бразилии <b>você</b> — обычное «ты», а глагол при нём стоит в форме «он/она»: <i>você é</i>, <i>você tem</i>. Формы на «ты» (tu) в Санта-Катарине услышишь, но сам можешь спокойно говорить você.'],
+  w:[['eu','я','эу'],['você','ты, вы','восе́'],['nome','имя','но́ми'],['meu','мой','ме́у'],['seu','твой','се́у'],['qual','какой, как','куа́у'],['como','как','ко́му'],['prazer','приятно познакомиться','празе́р'],['muito prazer','очень приятно','му́йту празе́р'],['eu sou','я (есть)','эу со́у'],['e','и, а','и']],
+  s:[['Qual é o seu nome?','Как тебя зовут?','куа́у э у се́у но́ми'],['Meu nome é Ana.','Меня зовут Ана.','ме́у но́ми э а́на'],['Eu sou Pedro, muito prazer.','Я Педру, очень приятно.','эу со́у пе́дру, му́йту празе́р'],['Prazer! Eu sou Lena.','Приятно! Я Лена.','празе́р, эу со́у ле́на'],['E você? Qual é o seu nome?','А ты? Как тебя зовут?','и восе́, куа́у э у се́у но́ми']],
+  d:[{q:'___ nome é Ana.',a:'Meu',o:['Meu','Seu','Qual'],ru:'Меня зовут Ана.'},{q:'Qual é o ___ nome?',a:'seu',o:['seu','meu','eu'],ru:'Как тебя зовут?'}]}
+]},
+
+{n:'Eu e você', ru:'Я и ты', L:[
+ {t:'Кто я: ser',
+  tip:['ser — постоянное «быть»','<b>ser</b> про то, что не меняется: кто ты, откуда, какая профессия. eu <b>sou</b>, você/ele/ela <b>é</b>, nós <b>somos</b>, eles <b>são</b>.'],
+  w:[['ele','он','э́ли'],['ela','она','э́ла'],['nós','мы','нос'],['eles','они','э́лис'],['sou','я есть','со́у'],['é','он/она есть, ты есть','э'],['somos','мы есть','со́мус'],['são','они есть','са́у'],['russo','русский','ху́су'],['russa','русская','ху́са'],['brasileiro','бразилец','бразиле́йру'],['brasileira','бразильянка','бразиле́йра'],['estudante','студент, студентка','истуда́нтчи'],['engenheiro','инженер','энженье́йру'],['médica','врач (женщина)','ме́джика']],
+  s:[['Eu sou russo.','Я русский.','эу со́у ху́су'],['Você é brasileira?','Ты бразильянка?','восе́ э бразиле́йра'],['Nós somos estudantes.','Мы студенты.','нос со́мус истуда́нтчис'],['Ela é médica.','Она врач.','э́ла э ме́джика'],['Eles são brasileiros.','Они бразильцы.','э́лис са́у бразиле́йрус']],
+  d:[{q:'Eu ___ russa.',a:'sou',o:['sou','é','são'],ru:'Я русская.'},{q:'Você ___ brasileiro?',a:'é',o:['é','sou','somos'],ru:'Ты бразилец?'},{q:'Nós ___ estudantes.',a:'somos',o:['somos','são','sou'],ru:'Мы студенты.'}]},
+ {t:'Откуда ты',
+  tip:['de + артикль сливаются','de + o = <b>do</b>, de + a = <b>da</b>. Страны с артиклем: <i>do Brasil</i>, <i>da Rússia</i>, <i>dos Estados Unidos</i>. Города — без: <i>de Moscou</i>.'],
+  w:[['de onde','откуда','джи о́нджи'],['de','из, от','джи'],['da Rússia','из России','да ху́сиа'],['do Brasil','из Бразилии','ду брази́у'],['morar','жить','мора́р'],['moro','я живу','мо́ру'],['cidade','город','сида́джи'],['país','страна','паи́с'],['aqui','здесь','аки́'],['agora','сейчас','аго́ра'],['mas','но','мас'],['em','в','эн']],
+  s:[['De onde você é?','Откуда ты?','джи о́нджи восе́ э'],['Eu sou da Rússia.','Я из России.','эу со́у да ху́сиа'],['Eu moro em Florianópolis.','Я живу во Флорианополисе.','эу мо́ру эн флорьяно́полис'],['Ele é do Brasil.','Он из Бразилии.','э́ли э ду брази́у'],['Agora eu moro aqui.','Сейчас я живу здесь.','аго́ра эу мо́ру аки́']],
+  d:[{q:'Eu sou ___ Rússia.',a:'da',o:['da','do','de'],ru:'Я из России.'},{q:'Ele é ___ Brasil.',a:'do',o:['do','da','em'],ru:'Он из Бразилии.'}]},
+ {t:'Как дела: estar',
+  tip:['ser или estar','<b>estar</b> — про сейчас и про состояние: <i>estou cansado</i> (устал сегодня). <b>ser</b> — про суть: <i>sou cansado</i> прозвучит как «я вечно усталый человек».'],
+  w:[['estar','быть (состояние)','иста́р'],['estou','я сейчас','исто́у'],['está','ты/он сейчас','иста́'],['estamos','мы сейчас','иста́мус'],['bem','хорошо','бэн'],['mal','плохо','ма́у'],['cansado','уставший','канса́ду'],['feliz','счастливый','фели́с'],['com fome','голоден','кон фо́ми'],['com pressa','спешу','кон пре́са'],['com sono','хочу спать','кон со́ну'],['doente','болен','доэ́нтчи']],
+  s:[['Como você está?','Как ты?','ко́му восе́ иста́'],['Eu estou bem, obrigada.','Я хорошо, спасибо.','эу исто́у бэн, обрига́да'],['Estou com fome!','Я голоден!','исто́у кон фо́ми'],['Ele está cansado.','Он уставший.','э́ли иста́ канса́ду'],['Estou com pressa, tchau!','Я спешу, пока!','исто́у кон пре́са, тча́у']],
+  d:[{q:'Eu ___ cansado hoje.',a:'estou',o:['estou','sou','está'],ru:'Я сегодня уставший.'},{q:'Eu ___ russo.',a:'sou',o:['sou','estou','está'],ru:'Я русский.'},{q:'Você ___ bem?',a:'está',o:['está','é','estou'],ru:'Ты в порядке?'}]}
+]},
+
+{n:'Família e pessoas', ru:'Семья и люди', L:[
+ {t:'Семья',
+  tip:['meu / minha','Притяжательное согласуется с предметом: <b>meu</b> pai, <b>minha</b> mãe. Часто с артиклем: <i>o meu pai</i> — так тоже правильно.'],
+  w:[['família','семья','фами́лиа'],['mãe','мама','ма́йн'],['pai','папа','па́й'],['filho','сын','фи́лю'],['filha','дочь','фи́лья'],['irmão','брат','ирма́у'],['irmã','сестра','ирма́н'],['marido','муж','мари́ду'],['esposa','жена','испо́за'],['avó','бабушка','аво́'],['avô','дедушка','аво́у'],['pais','родители','па́йс'],['minha','моя','ми́нья']],
+  s:[['Esta é minha esposa.','Это моя жена.','э́ста э ми́нья испо́за'],['Minha mãe é russa.','Моя мама русская.','ми́нья ма́йн э ху́са'],['Meu pai é engenheiro.','Мой папа инженер.','ме́у па́й э энженье́йру'],['Minha filha está aqui.','Моя дочь здесь.','ми́нья фи́лья иста́ аки́'],['Meus pais moram na Rússia.','Мои родители живут в России.','ме́ус па́йс мо́ран на ху́сиа']]},
+ {t:'Люди вокруг',
+  tip:['a gente = мы','Бразильцы вместо <i>nós</i> говорят <b>a gente</b>, а глагол ставят в форму «он»: <i>a gente vai</i> — «мы пойдём».'],
+  w:[['amigo','друг','ами́гу'],['amiga','подруга','ами́га'],['vizinho','сосед','визи́нью'],['chefe','начальник','ше́фи'],['criança','ребёнок','криа́нса'],['homem','мужчина','о́мэн'],['mulher','женщина','мулье́р'],['gente','люди, народ','же́нтчи'],['pessoa','человек','песо́а'],['simpático','приятный, милый','симпа́тику'],['alto','высокий','а́уту'],['jovem','молодой','жо́вэн'],['velho','старый','ве́лью']],
+  s:[['Meu vizinho é muito simpático.','Мой сосед очень приятный.','ме́у визи́нью э му́йту симпа́тику'],['Ela é uma pessoa legal.','Она классный человек.','э́ла э у́ма песо́а лега́у'],['A gente é amiga.','Мы друзья.','а же́нтчи э ами́га'],['Meu chefe é brasileiro.','Мой начальник бразилец.','ме́у ше́фи э бразиле́йру'],['A criança está com sono.','Ребёнок хочет спать.','а криа́нса иста́ кон со́ну']]},
+ {t:'ter: у меня есть',
+  tip:['Возраст через ter','Возраст — это «иметь годы»: <i>Eu <b>tenho</b> trinta anos</i>. Вопрос: <i>Quantos anos você tem?</i>'],
+  w:[['ter','иметь','тэр'],['tenho','у меня есть','те́нью'],['tem','у тебя/него есть','тэн'],['temos','у нас есть','те́мус'],['ano','год','а́ну'],['anos','лет','а́нус'],['quantos anos','сколько лет','куа́нтус а́нус'],['casado','женат','каза́ду'],['solteiro','не женат','соутэ́йру'],['juntos','вместе','жу́нтус'],['também','тоже','тамбе́н'],['um','один','ун'],['uma','одна','у́ма']],
+  s:[['Quantos anos você tem?','Сколько тебе лет?','куа́нтус а́нус восе́ тэн'],['Eu tenho uma filha.','У меня есть дочь.','эу те́нью у́ма фи́лья'],['Você é casado?','Ты женат?','восе́ э каза́ду'],['Eu também tenho um irmão.','У меня тоже есть брат.','эу тамбе́н те́нью ун ирма́у'],['Eles moram juntos.','Они живут вместе.','э́лис мо́ран жу́нтус']],
+  d:[{q:'Eu ___ uma filha.',a:'tenho',o:['tenho','tem','temos'],ru:'У меня есть дочь.'},{q:'Você ___ filhos?',a:'tem',o:['tem','tenho','temos'],ru:'У тебя есть дети?'},{q:'Nós ___ um carro.',a:'temos',o:['temos','tenho','tem'],ru:'У нас есть машина.'}]}
+]},
+
+{n:'Números e compras', ru:'Числа и покупки', L:[
+ {t:'Числа 0–12',
+  tip:['Как считать','Числа — тот словарь, который понадобится в первый же день: цены, номер дома, сдача. Слушай и повторяй вслух.'],
+  w:[['zero','ноль','зе́ру'],['um','один','ун'],['dois','два','до́йс'],['três','три','трэс'],['quatro','четыре','куа́тру'],['cinco','пять','си́нку'],['seis','шесть','се́йс'],['sete','семь','се́тчи'],['oito','восемь','о́йту'],['nove','девять','но́ви'],['dez','десять','де́с'],['onze','одиннадцать','о́нзи'],['doze','двенадцать','до́зи']],
+  s:[['Um café, por favor.','Один кофе, пожалуйста.','ун кафе́, пур фаво́р'],['Eu tenho dois irmãos.','У меня два брата.','эу те́нью до́йс ирма́нс'],['São sete.','Их семь.','са́у се́тчи'],['Dez anos aqui.','Десять лет здесь.','де́с а́нус аки́'],['Três, por favor.','Три, пожалуйста.','трэс, пур фаво́р']]},
+ {t:'Числа 13–1000',
+  tip:['Десятки и единицы через e','Между десятками и единицами всегда <b>e</b>: <i>vinte <b>e</b> cinco</i> — 25, <i>cento <b>e</b> dez</i> — 110.'],
+  w:[['treze','тринадцать','тре́зи'],['quatorze','четырнадцать','куато́рзи'],['quinze','пятнадцать','ки́нзи'],['dezesseis','шестнадцать','джизесе́йс'],['dezessete','семнадцать','джизесе́тчи'],['dezoito','восемнадцать','джизо́йту'],['dezenove','девятнадцать','джизено́ви'],['vinte','двадцать','ви́нтчи'],['trinta','тридцать','три́нта'],['quarenta','сорок','куаре́нта'],['cinquenta','пятьдесят','синкуе́нта'],['cem','сто','сэн'],['mil','тысяча','ми́у']],
+  s:[['Vinte e um.','Двадцать один.','ви́нтчи и ун'],['Trinta e dois anos.','Тридцать два года.','три́нта и до́йс а́нус'],['Quinze minutos.','Пятнадцать минут.','ки́нзи мину́тус'],['São quarenta.','Это сорок.','са́у куаре́нта'],['Cem reais.','Сто реалов.','сэн хеа́йс']],
+  d:[{q:'vinte ___ cinco',a:'e',o:['e','de','um'],ru:'двадцать пять'}]},
+ {t:'В магазине',
+  tip:['Pix','В Бразилии почти везде платят через <b>Pix</b> — мгновенный перевод по телефону или QR-коду. Фраза «<i>Pode ser no pix?</i>» решает половину бытовых ситуаций.'],
+  w:[['quanto custa','сколько стоит','куа́нту ку́ста'],['quanto é','сколько','куа́нту э'],['real','реал','хеа́у'],['reais','реалы','хеа́йс'],['caro','дорого','ка́ру'],['barato','дешево','бара́ту'],['dinheiro','деньги','джинье́йру'],['cartão','карта','карта́у'],['troco','сдача','тро́ку'],['quero','я хочу','ке́ру'],['preciso de','мне нужно','преси́зу джи'],['sacola','пакет','сако́ла'],['desconto','скидка','джиско́нту']],
+  s:[['Quanto custa?','Сколько стоит?','куа́нту ку́ста'],['Custa vinte reais.','Стоит двадцать реалов.','ку́ста ви́нтчи хеа́йс'],['Você aceita cartão?','Вы принимаете карту?','восе́ асе́йта карта́у'],['Muito caro! Tem desconto?','Очень дорого! Есть скидка?','му́йту ка́ру, тэн джиско́нту'],['Eu quero dois, por favor.','Я хочу два, пожалуйста.','эу ке́ру до́йс, пур фаво́р'],['Pode ser no pix?','Можно по Pix?','по́джи сэр ну пи́кс']],
+  d:[{q:'___ custa?',a:'Quanto',o:['Quanto','Quantos','Qual'],ru:'Сколько стоит?'},{q:'Eu ___ uma sacola.',a:'preciso de',o:['preciso de','quero de','tenho de'],ru:'Мне нужен пакет.'}]}
+]},
+
+{n:'Comida e café', ru:'Еда и кафе', L:[
+ {t:'Продукты',
+  tip:['pão de queijo','Главный бразильский перекус — <b>pão de queijo</b>, сырные шарики из маниоковой муки. Спрашивают их в любой padaria (булочной).'],
+  w:[['água','вода','а́гуа'],['café','кофе','кафе́'],['pão','хлеб','па́у'],['queijo','сыр','ке́йжу'],['arroz','рис','аху́с'],['feijão','фасоль','фейжа́у'],['carne','мясо','ка́рни'],['frango','курица','фра́нгу'],['peixe','рыба','пе́йши'],['fruta','фрукт','фру́та'],['ovo','яйцо','о́ву'],['leite','молоко','ле́йтчи'],['ou','или','о́у']],
+  s:[['Um café com leite, por favor.','Кофе с молоком, пожалуйста.','ун кафе́ кон ле́йтчи, пур фаво́р'],['Eu quero arroz e feijão.','Я хочу рис с фасолью.','эу ке́ру аху́с и фейжа́у'],['Tem pão de queijo?','Есть pão de queijo?','тэн па́у джи ке́йжу'],['Frango ou peixe?','Курицу или рыбу?','фра́нгу о́у пе́йши'],['Água, por favor.','Воды, пожалуйста.','а́гуа, пур фаво́р']]},
+ {t:'В ресторане',
+  tip:['Счёт и чаевые','<i>A conta, por favor</i> — счёт. В счёт обычно уже включены 10% для официанта (<i>taxa de serviço</i>), отдельно оставлять не нужно.'],
+  w:[['restaurante','ресторан','хестаура́нтчи'],['garçom','официант','гарсо́н'],['cardápio','меню','карда́пиу'],['a conta','счёт','а ко́нта'],['pedir','заказать','педжи́р'],['comer','есть, кушать','коме́р'],['beber','пить','бебе́р'],['com','с','кон'],['sem','без','сэн'],['gelo','лёд','же́лу'],['açúcar','сахар','асу́кар'],['para viagem','с собой','пара виа́жен'],['mesa','столик','ме́за']],
+  s:[['A conta, por favor!','Счёт, пожалуйста!','а ко́нта, пур фаво́р'],['Uma mesa para dois.','Столик на двоих.','у́ма ме́за пара до́йс'],['Eu quero pedir, por favor.','Я хочу заказать, пожалуйста.','эу ке́ру педжи́р, пур фаво́р'],['Café sem açúcar, para viagem.','Кофе без сахара, с собой.','кафе́ сэн асу́кар, пара виа́жен'],['Água sem gelo, por favor.','Воду без льда, пожалуйста.','а́гуа сэн же́лу, пур фаво́р'],['Pode trazer o cardápio?','Можете принести меню?','по́джи тразе́р у карда́пиу']]},
+ {t:'Вкус и количество',
+  tip:['muito','<b>muito</b> перед прилагательным не меняется: <i>muito gostoso</i>, <i>muito caro</i>. А перед существительным согласуется: <i>muita água</i>, <i>muitos amigos</i>.'],
+  w:[['gostoso','вкусный','госто́зу'],['delicioso','очень вкусный','делисио́зу'],['salgado','солёный','саўга́ду'],['doce','сладкий','до́си'],['quente','горячий','ке́нтчи'],['frio','холодный','фри́у'],['pouco','мало','по́ку'],['muito','много, очень','му́йту'],['um pouco de','немного','ун по́ку джи'],['prato','блюдо, тарелка','пра́ту'],['copo','стакан','ко́пу'],['garrafa','бутылка','гаха́фа'],['só','только','со']],
+  s:[['Está muito gostoso!','Очень вкусно!','иста́ му́йту госто́зу'],['Um copo de água, por favor.','Стакан воды, пожалуйста.','ун ко́пу джи а́гуа, пур фаво́р'],['O café está frio.','Кофе холодный.','у кафе́ иста́ фри́у'],['Só um pouco de açúcar.','Только немного сахара.','со ун по́ку джи асу́кар'],['Uma garrafa de água gelada.','Бутылку холодной воды.','у́ма гаха́фа джи а́гуа жела́да']],
+  d:[{q:'Está ___ caro.',a:'muito',o:['muito','muita','muitos'],ru:'Это очень дорого.'},{q:'Quero ___ pouco de leite.',a:'um',o:['um','uma','o'],ru:'Хочу немного молока.'}]}
+]},
+{n:'Cidade e caminho', ru:'Город и дорога', L:[
+ {t:'Город',
+  tip:['Артикль почти всегда есть','Перед существительным обычно стоит артикль: <b>o</b> banco, <b>a</b> praia. Мужской — o/os, женский — a/as.'],
+  w:[['rua','улица','ху́а'],['avenida','авенида, проспект','авени́да'],['praia','пляж','пра́йа'],['centro','центр','се́нтру'],['mercado','рынок, супермаркет','мерка́ду'],['padaria','булочная','падари́а'],['farmácia','аптека','фарма́сиа'],['banco','банк','ба́нку'],['loja','магазин','ло́жа'],['praça','площадь','пра́са'],['shopping','торговый центр','шо́пин'],['igreja','церковь','игре́жа']],
+  s:[['A praia é perto?','Пляж близко?','а пра́йа э пе́рту'],['Tem uma farmácia aqui?','Здесь есть аптека?','тэн у́ма фарма́сиа аки́'],['Eu vou ao mercado.','Я иду в супермаркет.','эу во́у а́у мерка́ду'],['A padaria está aberta.','Булочная открыта.','а падари́а иста́ абе́рта'],['O banco fica no centro.','Банк находится в центре.','у ба́нку фи́ка ну се́нтру']]},
+ {t:'Как дойти',
+  tip:['onde fica','Чтобы спросить дорогу: <b>Onde fica…?</b> — «где находится…?». Глагол <i>ficar</i> тут значит «располагаться».'],
+  w:[['onde fica','где находится','о́нджи фи́ка'],['perto','близко','пе́рту'],['longe','далеко','ло́нжи'],['à direita','направо','а джире́йта'],['à esquerda','налево','а искве́рда'],['reto','прямо','хе́ту'],['virar','повернуть','вира́р'],['atravessar','перейти','атравеса́р'],['esquina','угол улицы','иски́на'],['em frente','напротив, впереди','эн фре́нтчи'],['atrás','сзади','атра́с'],['do lado','рядом','ду ла́ду']],
+  s:[['Onde fica o banheiro?','Где туалет?','о́нджи фи́ка у банье́йру'],['É perto ou longe?','Это близко или далеко?','э пе́рту о́у ло́нжи'],['Vire à direita na esquina.','Поверните направо на углу.','ви́ри а джире́йта на иски́на'],['Siga reto, por favor.','Идите прямо, пожалуйста.','си́га хе́ту, пур фаво́р'],['Fica em frente ao mercado.','Это напротив супермаркета.','фи́ка эн фре́нтчи а́у мерка́ду']],
+  d:[{q:'___ fica a praia?',a:'Onde',o:['Onde','Quanto','Qual'],ru:'Где пляж?'},{q:'Vire ___ esquerda.',a:'à',o:['à','ao','de'],ru:'Поверните налево.'}]},
+ {t:'Транспорт',
+  tip:['Uber и 99','В бразильских городах такси вызывают через приложения Uber и 99. На автобус нужна карта или наличные — в Флорианополисе это <i>cartão</i> системы Fácil.'],
+  w:[['ônibus','автобус','о́нибус'],['metrô','метро','метро́'],['carro','машина','ка́ху'],['moto','мотоцикл','мо́ту'],['bicicleta','велосипед','бисикле́та'],['ponto','остановка','по́нту'],['passagem','билет, проезд','паса́жен'],['horário','расписание','ора́риу'],['chegar','приезжать, приходить','шега́р'],['sair','выходить, уезжать','саи́р'],['demora','занимает время','демо́ра'],['quanto tempo','сколько времени','куа́нту те́мпу']],
+  s:[['Quanto tempo demora?','Сколько это занимает?','куа́нту те́мпу демо́ра'],['Onde fica o ponto de ônibus?','Где автобусная остановка?','о́нджи фи́ка у по́нту джи о́нибус'],['Quanto custa a passagem?','Сколько стоит проезд?','куа́нту ку́ста а паса́жен'],['O ônibus chega às oito.','Автобус приходит в восемь.','у о́нибус ше́га ас о́йту'],['Eu vou de carro.','Я поеду на машине.','эу во́у джи ка́ху']]}
+]},
+
+{n:'Casa e dia a dia', ru:'Дом и быт', L:[
+ {t:'Дом и квартира',
+  tip:['Этажи и дома','<b>prédio</b> — многоквартирный дом, <b>sobrado</b> — дом в два этажа, <b>kitnet</b> — студия. Первый этаж называют <i>térreo</i>.'],
+  w:[['casa','дом','ка́за'],['apartamento','квартира','апартаме́нту'],['prédio','дом, здание','пре́джиу'],['quarto','комната, спальня','куа́рту'],['cozinha','кухня','кози́нья'],['banheiro','ванная, туалет','банье́йру'],['sala','гостиная','са́ла'],['chave','ключ','ша́ви'],['porta','дверь','по́рта'],['janela','окно','жане́ла'],['cama','кровать','ка́ма'],['chuveiro','душ','шуве́йру']],
+  s:[['Meu apartamento tem dois quartos.','В моей квартире две спальни.','ме́у апартаме́нту тэн до́йс куа́ртус'],['A chave está na porta.','Ключ в двери.','а ша́ви иста́ на по́рта'],['O chuveiro não funciona.','Душ не работает.','у шуве́йру на́у фунсио́на'],['A cozinha é pequena.','Кухня маленькая.','а кози́нья э пеке́на'],['Eu moro no terceiro andar.','Я живу на третьем этаже.','эу мо́ру ну терсе́йру анда́р']]},
+ {t:'Снять жильё',
+  tip:['Что входит в цену','К <b>aluguel</b> (аренде) почти всегда добавляются <b>condomínio</b> (обслуживание дома), <b>luz</b> (электричество) и интернет. Спроси: <i>O condomínio está incluso?</i>'],
+  w:[['aluguel','аренда','алуге́у'],['alugar','снимать, арендовать','алуга́р'],['contrato','договор','контра́ту'],['condomínio','плата за дом','кондоми́ниу'],['luz','свет, электричество','лу́с'],['internet','интернет','интерне́тчи'],['mobiliado','с мебелью','мобилиа́ду'],['depósito','залог','депо́зиту'],['dono','хозяин','до́ну'],['imobiliária','агентство недвижимости','имобилиа́риа'],['mês','месяц','мэ́с'],['assinar','подписать','асина́р']],
+  s:[['Quanto é o aluguel por mês?','Сколько аренда в месяц?','куа́нту э у алуге́у пур мэ́с'],['O condomínio está incluso?','Плата за дом включена?','у кондоми́ниу иста́ инклу́зу'],['O apartamento é mobiliado?','Квартира с мебелью?','у апартаме́нту э мобилиа́ду'],['Preciso assinar o contrato.','Мне нужно подписать договор.','преси́зу асина́р у контра́ту'],['A internet está no nome do dono.','Интернет оформлен на хозяина.','а интерне́тчи иста́ ну но́ми ду до́ну']]},
+ {t:'Повседневные дела',
+  tip:['ligar — два смысла','<b>ligar</b> значит и «звонить», и «включать»: <i>ligar para o dono</i> — позвонить хозяину, <i>ligar a luz</i> — включить свет.'],
+  w:[['acordar','просыпаться','акорда́р'],['dormir','спать','дорми́р'],['comprar','покупать','компра́р'],['pagar','платить','пага́р'],['limpar','убирать','лимпа́р'],['cozinhar','готовить','козинья́р'],['lavar','мыть, стирать','лава́р'],['abrir','открывать','абри́р'],['fechar','закрывать','феша́р'],['ligar','звонить, включать','лига́р'],['usar','использовать','уза́р'],['ajudar','помогать','ажуда́р']],
+  s:[['Eu acordo às sete.','Я встаю в семь.','эу ако́рду ас се́тчи'],['Preciso pagar o aluguel.','Мне нужно заплатить аренду.','преси́зу пага́р у алуге́у'],['Você pode me ajudar?','Можешь мне помочь?','восе́ по́джи ми ажуда́р'],['Eu vou cozinhar hoje.','Я буду готовить сегодня.','эу во́у козинья́р о́жи'],['Pode fechar a janela?','Можешь закрыть окно?','по́джи феша́р а жане́ла']]}
+]},
+
+{n:'Tempo e planos', ru:'Время и планы', L:[
+ {t:'Время суток и часы',
+  tip:['Который час','<i>Que horas são?</i> — «сколько времени?». Ответ: <b>São</b> duas horas, но для одного часа — <b>É</b> uma hora. «В восемь» — <i>às oito</i>.'],
+  w:[['hora','час','о́ра'],['que horas são','который час','ки о́рас са́у'],['meio-dia','полдень','ме́йу-джи́а'],['meia-noite','полночь','ме́йа-но́йтчи'],['manhã','утро','манья́н'],['tarde','день, после обеда','та́хджи'],['noite','вечер, ночь','но́йтчи'],['hoje','сегодня','о́жи'],['amanhã','завтра','аманья́н'],['ontem','вчера','о́нтэн'],['depois','потом','депо́йс'],['cedo','рано','се́ду']],
+  s:[['Que horas são?','Который час?','ки о́рас са́у'],['São três horas.','Три часа.','са́у трэс о́рас'],['Hoje à noite, beleza?','Сегодня вечером, хорошо?','о́жи а но́йтчи, беле́за'],['Amanhã de manhã eu trabalho.','Завтра утром я работаю.','аманья́н джи манья́н эу траба́лю'],['Ontem eu cheguei tarde.','Вчера я приехал поздно.','о́нтэн эу шеге́й та́хджи']],
+  d:[{q:'___ uma hora.',a:'É',o:['É','São','Está'],ru:'Час.'},{q:'___ cinco horas.',a:'São',o:['São','É','Tem'],ru:'Пять часов.'}]},
+ {t:'Дни и недели',
+  tip:['Дни недели','Будни — «feira»: segunda-feira (пн) … sexta-feira (пт), а выходные просто sábado и domingo. В речи «feira» обычно опускают: <i>na segunda</i>.'],
+  w:[['segunda-feira','понедельник','сегу́нда-фе́йра'],['terça-feira','вторник','те́рса-фе́йра'],['quarta-feira','среда','куа́рта-фе́йра'],['quinta-feira','четверг','ки́нта-фе́йра'],['sexta-feira','пятница','се́ста-фе́йра'],['sábado','суббота','са́баду'],['domingo','воскресенье','доми́нгу'],['fim de semana','выходные','фин джи сема́на'],['semana','неделя','сема́на'],['próximo','следующий','про́ксиму'],['passado','прошлый','паса́ду'],['feriado','праздник, выходной','фериа́ду']],
+  s:[['Até segunda!','До понедельника!','ате́ сегу́нда'],['No fim de semana eu vou à praia.','На выходных я иду на пляж.','ну фин джи сема́на эу во́у а пра́йа'],['Na próxima semana tenho uma reunião.','На следующей неделе у меня встреча.','на про́ксима сема́на те́нью у́ма хеунья́у'],['Domingo é feriado.','Воскресенье — праздник.','доми́нгу э фериа́ду'],['Semana passada eu estava aqui.','На прошлой неделе я был здесь.','сема́на паса́да эу иста́ва аки́']]},
+ {t:'Планы: vou + инфинитив',
+  tip:['Будущее через ir','Будущее почти всегда строят так: <b>vou</b> + глагол. <i>Vou comprar</i> — куплю, <i>vamos ver</i> — посмотрим. Это проще настоящего будущего времени, и так говорят все.'],
+  w:[['ir','идти, ехать','ир'],['vou','я пойду, я буду','во́у'],['vai','ты/он пойдёт','ва́й'],['vamos','мы пойдём, давай','ва́мус'],['fazer','делать','фазе́р'],['poder','мочь','поде́р'],['pode','можешь, можно','по́джи'],['querer','хотеть','кере́р'],['precisar','нуждаться','пресиза́р'],['talvez','может быть','тауве́с'],['claro','конечно','кла́ру'],['vontade','желание','вонта́джи']],
+  s:[['O que você vai fazer hoje?','Что ты будешь делать сегодня?','у ки восе́ ва́й фазе́р о́жи'],['Vou trabalhar de manhã.','Я буду работать утром.','во́у трабалья́р джи манья́н'],['Vamos à praia amanhã?','Пойдём завтра на пляж?','ва́мус а пра́йа аманья́н'],['Você pode vir às oito?','Можешь прийти в восемь?','восе́ по́джи вир ас о́йту'],['Talvez eu vá mais tarde.','Может быть, я пойду позже.','тауве́с эу ва ма́йс та́хджи']],
+  d:[{q:'Eu ___ comprar pão.',a:'vou',o:['vou','vai','vamos'],ru:'Я куплю хлеб.'},{q:'Nós ___ à praia.',a:'vamos',o:['vamos','vou','vai'],ru:'Мы идём на пляж.'},{q:'Você ___ trabalhar amanhã?',a:'vai',o:['vai','vou','vamos'],ru:'Ты будешь работать завтра?'}]}
+]},
+
+{n:'Rotina e trabalho', ru:'Рутина и работа', L:[
+ {t:'Глаголы на -ar',
+  tip:['Спряжение -ar','falar: eu fal<b>o</b>, você/ele fal<b>a</b>, nós fal<b>amos</b>, eles fal<b>am</b>. Так же ведут себя trabalhar, morar, estudar, comprar — почти все глаголы языка.'],
+  w:[['falar','говорить','фала́р'],['falo','я говорю','фа́лу'],['fala','ты говоришь','фа́ла'],['falamos','мы говорим','фала́мус'],['trabalho','я работаю','траба́лю'],['estudo','я учусь','исту́ду'],['gostar de','нравиться','госта́р джи'],['gosto de','мне нравится','го́сту джи'],['achar','считать, находить','аша́р'],['acho','я думаю','а́шу'],['chego','я приезжаю','ше́гу'],['devagar','медленно','джевага́р']],
+  s:[['Eu falo um pouco de português.','Я немного говорю по-португальски.','эу фа́лу ун по́ку джи португе́с'],['Você fala russo?','Ты говоришь по-русски?','восе́ фа́ла ху́су'],['Pode falar devagar, por favor?','Можете говорить медленнее?','по́джи фала́р джевага́р, пур фаво́р'],['Eu gosto de café.','Мне нравится кофе.','эу го́сту джи кафе́'],['Acho que sim.','Думаю, да.','а́шу ки син']],
+  d:[{q:'Eu ___ português.',a:'falo',o:['falo','fala','falamos'],ru:'Я говорю по-португальски.'},{q:'Nós ___ aqui.',a:'moramos',o:['moramos','moro','mora'],ru:'Мы живём здесь.'},{q:'Eu gosto ___ praia.',a:'da',o:['da','de a','o'],ru:'Мне нравится пляж.'}]},
+ {t:'Глаголы на -er и -ir',
+  tip:['-er и -ir','comer: eu com<b>o</b>, você com<b>e</b>, nós com<b>emos</b>. abrir: eu abr<b>o</b>, você abr<b>e</b>, nós abr<b>imos</b>. Разница только в «мы».'],
+  w:[['como','я ем','ко́му'],['come','ты ешь','ко́ми'],['bebo','я пью','бе́бу'],['entender','понимать','энтенде́р'],['entendo','я понимаю','энте́нду'],['abro','я открываю','а́бру'],['durmo','я сплю','ду́рму'],['ver','видеть, смотреть','вэр'],['vejo','я вижу','ве́жу'],['faço','я делаю','фа́су'],['digo','я говорю (сообщаю)','джи́гу'],['saber','знать','сабе́р'],['sei','я знаю','сэ́й']],
+  s:[['Eu não entendo.','Я не понимаю.','эу на́у энте́нду'],['Desculpa, eu não sei.','Извини, я не знаю.','джискуу́па, эу на́у сэ́й'],['Eu não como carne.','Я не ем мясо.','эу на́у ко́му ка́рни'],['Você entende russo?','Ты понимаешь по-русски?','восе́ энте́нджи ху́су'],['Eu faço isso amanhã.','Я сделаю это завтра.','эу фа́су и́су аманья́н']],
+  d:[{q:'Eu não ___ nada.',a:'entendo',o:['entendo','entende','entender'],ru:'Я ничего не понимаю.'},{q:'Eu ___ às onze.',a:'durmo',o:['durmo','dormir','dorme'],ru:'Я сплю в одиннадцать.'}]},
+ {t:'Работа',
+  tip:['Рабочий словарь','Эти слова нужны на созвонах: <b>reunião</b> (встреча), <b>prazo</b> (срок), <b>planilha</b> (таблица), <b>relatório</b> (отчёт).'],
+  w:[['trabalho','работа','траба́лю'],['reunião','встреча, созвон','хеунья́у'],['projeto','проект','проже́ту'],['prazo','срок','пра́зу'],['relatório','отчёт','хелато́риу'],['planilha','таблица, Excel','плани́лья'],['escritório','офис','искрито́риу'],['email','почта','име́йу'],['mandar','отправить','манда́р'],['resolver','решить','хезоуве́р'],['equipe','команда','еки́пи'],['cliente','клиент','клие́нтчи']],
+  s:[['Vou mandar o relatório hoje.','Отправлю отчёт сегодня.','во́у манда́р у хелато́риу о́жи'],['A reunião é às dez.','Встреча в десять.','а хеунья́у э ас де́с'],['Qual é o prazo?','Какой срок?','куа́у э у пра́зу'],['Preciso resolver isso agora.','Мне нужно решить это сейчас.','преси́зу хезоуве́р и́су аго́ра'],['Minha equipe é pequena.','Моя команда небольшая.','ми́нья еки́пи э пеке́на']]}
+]},
+
+{n:'Passado e histórias', ru:'Прошлое и рассказ', L:[
+ {t:'Прошедшее: -ar',
+  tip:['Прошедшее время -ar','falar → eu fal<b>ei</b>, você fal<b>ou</b>, nós fal<b>amos</b>. Ударение на конце: <i>falei</i>, <i>cheguei</i>, <i>comprei</i>.'],
+  w:[['falei','я сказал','фале́й'],['falou','ты сказал','фало́у'],['trabalhei','я работал','трабалье́й'],['cheguei','я приехал','шеге́й'],['comprei','я купил','компре́й'],['morei','я жил','море́й'],['estudei','я учился','истуде́й'],['gostei','мне понравилось','госте́й'],['paguei','я заплатил','паге́й'],['acordei','я проснулся','акорде́й'],['ligou','он позвонил','лиго́у'],['ficou','он остался, стало','фико́у']],
+  s:[['Eu cheguei ontem.','Я приехал вчера.','эу шеге́й о́нтэн'],['Eu gostei muito!','Мне очень понравилось!','эу госте́й му́йту'],['Comprei pão na padaria.','Я купил хлеб в булочной.','компре́й па́у на падари́а'],['Trabalhei muito essa semana.','Я много работал на этой неделе.','трабалье́й му́йту э́са сема́на'],['O dono ligou de manhã.','Хозяин звонил утром.','у до́ну лиго́у джи манья́н']],
+  d:[{q:'Ontem eu ___ café.',a:'comprei',o:['comprei','compro','comprar'],ru:'Вчера я купил кофе.'},{q:'Eu ___ no Brasil em 2020.',a:'cheguei',o:['cheguei','chego','chegar'],ru:'Я приехал в Бразилию в 2020.'}]},
+ {t:'Прошедшее: неправильные',
+  tip:['Пять главных','<b>fui</b> (был, пошёл), <b>tive</b> (имел), <b>fiz</b> (сделал), <b>vi</b> (видел), <b>disse</b> (сказал). Их просто надо запомнить — они встречаются чаще всех.'],
+  w:[['fui','я был, я пошёл','фу́й'],['foi','он был, он пошёл','фо́й'],['tive','у меня был','тчи́ви'],['fiz','я сделал','фи́с'],['estive','я был (находился)','исчи́ви'],['pude','я смог','пу́джи'],['vi','я видел','ви'],['disse','я сказал','джи́си'],['comi','я поел','коми́'],['bebi','я выпил','беби́'],['dormi','я спал','дорми́'],['já','уже','жа']],
+  s:[['Eu fui à praia ontem.','Я был на пляже вчера.','эу фу́й а пра́йа о́нтэн'],['Já comi, obrigado.','Я уже поел, спасибо.','жа коми́, обрига́ду'],['Não pude ir.','Я не смог пойти.','на́у пу́джи ир'],['Eu vi seu email.','Я видел твоё письмо.','эу ви се́у име́йу'],['Foi muito legal!','Было очень классно!','фо́й му́йту лега́у']],
+  d:[{q:'Ontem eu ___ ao mercado.',a:'fui',o:['fui','foi','vou'],ru:'Вчера я ходил в супермаркет.'},{q:'Eu ___ o relatório.',a:'fiz',o:['fiz','faço','fazer'],ru:'Я сделал отчёт.'}]},
+ {t:'Рассказать историю',
+  tip:['Склейка рассказа','Связки делают речь живой: <b>então</b> (тогда), <b>depois</b> (потом), <b>por isso</b> (поэтому), <b>no final</b> (в итоге). И не забывай <i>né?</i> в конце — «да?».'],
+  w:[['então','тогда, итак','энта́у'],['depois','потом','депо́йс'],['antes','раньше, до','а́нтчис'],['por isso','поэтому','пур и́су'],['no final','в итоге','ну фина́у'],['ainda não','ещё нет','аи́нда на́у'],['nunca','никогда','ну́нка'],['sempre','всегда','се́мпри'],['às vezes','иногда','ас ве́зис'],['né?','да?, правда?','нэ'],['nossa!','ого!','но́са'],['que legal!','как классно!','ки лега́у']],
+  s:[['Nossa, que legal!','Ого, как классно!','но́са, ки лега́у'],['Antes eu morei em Moscou, depois vim para cá.','Раньше я жил в Москве, потом приехал сюда.','а́нтчис эу море́й эн моско́у, депо́йс вин пара ка'],['Eu ainda não falo bem, mas entendo.','Я ещё плохо говорю, но понимаю.','эу аи́нда на́у фа́лу бэн, мас энте́нду'],['Às vezes eu vou à praia de manhã.','Иногда я ходу на пляж утром.','ас ве́зис эу во́у а пра́йа джи манья́н'],['Está difícil, né?','Трудно, да?','иста́ джифи́сиу, нэ']]}
+]}
+];
+
+/* ============ ГРАММАТИКА И ЗВУКИ ============ */
+const GRAMMAR=[
+{t:'Как читать: главное за 2 минуты', b:`
+<p>Португальский Бразилии читается почти как пишется, но есть несколько привычек, которые выдают новичка.</p>
+<ul>
+<li><b>o</b> в конце слова → «у»: <i>obrigado</i> → обригаду.</li>
+<li><b>e</b> в конце → «и»: <i>nome</i> → номи, <i>leite</i> → лейтчи.</li>
+<li><b>de</b> и <b>te</b>, <b>di</b> и <b>ti</b> → «джи» и «тчи»: <i>cidade</i> → сидаджи, <i>sete</i> → сетчи.</li>
+<li><b>r</b> в начале слова и <b>rr</b> → как русское «х»: <i>rua</i> → хуа, <i>carro</i> → каху.</li>
+<li><b>l</b> в конце → «у»: <i>Brasil</i> → бразиу, <i>legal</i> → легау.</li>
+<li><b>s</b> между гласными → «з»: <i>casa</i> → каза.</li>
+<li><b>lh</b> → «ль», <b>nh</b> → «нь»: <i>filho</i> → филю, <i>dinheiro</i> → диньейру.</li>
+<li><b>ç</b> → «с», <b>ch</b> → «ш», <b>j</b> и <b>g</b> перед e/i → «ж».</li>
+</ul>
+<div class="ex"><b>Bom dia, tudo bem?</b><span>бон джиа, туду бэн?</span></div>`},
+{t:'Носовые: ão, ã, õe, em', b:`
+<p>Нет русского аналога: воздух идёт через нос, и звук как бы «не доканчивается».</p>
+<ul>
+<li><b>ão</b> — «ау» в нос: <i>não</i>, <i>pão</i>, <i>cartão</i>, <i>feijão</i>.</li>
+<li><b>ã</b> — «ан» в нос: <i>irmã</i>, <i>manhã</i>.</li>
+<li><b>ões</b> — «ойнс»: <i>reuniões</i>.</li>
+<li><b>em / en</b> в конце — «эн»: <i>bem</i>, <i>tem</i>, <i>cem</i>.</li>
+</ul>
+<p>Простая проверка: если зажать нос и звук меняется — вы сделали правильно.</p>`},
+{t:'Артикли: o, a, os, as', b:`
+<p>Существительные бывают мужского или женского рода, и артикль почти всегда на месте — даже перед именами и притяжательными.</p>
+<table class="conj"><tr><td>мужской, ед.</td><td>o café</td></tr><tr><td>женский, ед.</td><td>a praia</td></tr><tr><td>мужской, мн.</td><td>os amigos</td></tr><tr><td>женский, мн.</td><td>as casas</td></tr></table>
+<p>Неопределённые: <b>um</b> / <b>uma</b> — «один / одна», они же наши «какой-то».</p>
+<div class="ex"><b>Um café e uma água, por favor.</b><span>Кофе и воду, пожалуйста.</span></div>`},
+{t:'Предлог + артикль: do, da, no, na, ao', b:`
+<p>Предлоги сливаются с артиклем, и это обязательно, а не стилистика.</p>
+<table class="conj"><tr><td>de + o / a</td><td>do / da</td></tr><tr><td>em + o / a</td><td>no / na</td></tr><tr><td>a + o / a</td><td>ao / à</td></tr><tr><td>por + o / a</td><td>pelo / pela</td></tr></table>
+<div class="ex"><b>Eu moro na praia e trabalho no centro.</b><span>Я живу у пляжа и работаю в центре.</span></div>`},
+{t:'ser и estar: быть и быть', b:`
+<p>Два глагола «быть». <b>ser</b> — про суть, <b>estar</b> — про сейчас.</p>
+<table class="conj"><tr><td>eu</td><td>sou / estou</td></tr><tr><td>você, ele, ela</td><td>é / está</td></tr><tr><td>nós</td><td>somos / estamos</td></tr><tr><td>eles, elas</td><td>são / estão</td></tr></table>
+<div class="ex"><b>Eu sou russo, mas estou no Brasil.</b><span>Я русский, но сейчас в Бразилии.</span></div>
+<p>Третий глагол — <b>ficar</b>: «находиться» и «становиться». <i>Onde fica o banco?</i></p>`},
+{t:'Местоимения и você', b:`
+<table class="conj"><tr><td>я</td><td>eu</td></tr><tr><td>ты, вы</td><td>você</td></tr><tr><td>он / она</td><td>ele / ela</td></tr><tr><td>мы</td><td>nós / a gente</td></tr><tr><td>они</td><td>eles / elas</td></tr></table>
+<p>В речи местоимение часто опускают, если ясно из формы глагола: <i>Falo português</i>. А <b>a gente</b> («мы») требует глагол в форме «он»: <i>a gente vai</i>.</p>`},
+{t:'Настоящее время: три спряжения', b:`
+<table class="conj"><tr><td>falar</td><td>falo · fala · falamos · falam</td></tr><tr><td>comer</td><td>como · come · comemos · comem</td></tr><tr><td>abrir</td><td>abro · abre · abrimos · abrem</td></tr></table>
+<p>Форма «я» почти всегда на <b>-o</b>. Запомнив её, вы уже можете говорить о себе.</p>
+<p>Частые неправильные: <i>ter</i> → tenho, <i>fazer</i> → faço, <i>ver</i> → vejo, <i>saber</i> → sei, <i>poder</i> → posso, <i>querer</i> → quero, <i>ir</i> → vou.</p>`},
+{t:'Будущее: vou + инфинитив', b:`
+<p>Живое будущее строится проще некуда: форма <b>ir</b> + глагол в инфинитиве.</p>
+<table class="conj"><tr><td>eu</td><td>vou falar</td></tr><tr><td>você</td><td>vai falar</td></tr><tr><td>nós / a gente</td><td>vamos / vai falar</td></tr></table>
+<div class="ex"><b>Amanhã eu vou pagar o aluguel.</b><span>Завтра я заплачу аренду.</span></div>
+<p><b>Vamos</b> + глагол ещё и приглашение: <i>Vamos tomar um café?</i></p>`},
+{t:'Прошедшее: pretérito perfeito', b:`
+<p>Действие завершено — используем perfeito.</p>
+<table class="conj"><tr><td>-ar (falar)</td><td>falei · falou · falamos · falaram</td></tr><tr><td>-er (comer)</td><td>comi · comeu · comemos · comeram</td></tr><tr><td>-ir (abrir)</td><td>abri · abriu · abrimos · abriram</td></tr></table>
+<p>Неправильные, которые нужны сразу: <b>fui</b> (ser/ir), <b>tive</b> (ter), <b>fiz</b> (fazer), <b>estive</b> (estar), <b>pude</b> (poder), <b>vi</b> (ver), <b>disse</b> (dizer), <b>quis</b> (querer).</p>`},
+{t:'Вопросы', b:`
+<p>Порядок слов не меняется — достаточно интонации или вопросительного слова.</p>
+<table class="conj"><tr><td>что</td><td>o que / que</td></tr><tr><td>кто</td><td>quem</td></tr><tr><td>где</td><td>onde</td></tr><tr><td>куда</td><td>para onde</td></tr><tr><td>когда</td><td>quando</td></tr><tr><td>почему</td><td>por que</td></tr><tr><td>как</td><td>como</td></tr><tr><td>сколько</td><td>quanto / quantos</td></tr></table>
+<div class="ex"><b>Você fala inglês?</b><span>Ты говоришь по-английски?</span></div>`},
+{t:'Отрицание', b:`
+<p>Одно слово <b>não</b> перед глаголом — и всё.</p>
+<div class="ex"><b>Eu não entendo.</b><span>Я не понимаю.</span></div>
+<p>Двойное отрицание здесь нормально: <i>Não tenho nada</i>, <i>Não vi ninguém</i>, <i>Nunca fui lá</i>.</p>
+<p>Ответ «нет, спасибо» — <i>Não, obrigado</i>. А «нет» в смысле «неправда» часто удваивают: <i>Não, não é isso</i>.</p>`},
+{t:'Прилагательные и род', b:`
+<p>Прилагательное идёт <b>после</b> существительного и согласуется с ним.</p>
+<div class="ex"><b>um apartamento pequeno · uma casa pequena</b><span>маленькая квартира · маленький дом</span></div>
+<p>Множественное — обычно <b>-s</b>: <i>casas bonitas</i>. Слова на <b>-e</b> и <b>-l</b> не меняются по роду: <i>grande</i>, <i>legal</i>, <i>fácil</i>.</p>`},
+{t:'Вежливость по-бразильски', b:`
+<p>Формальность здесь невысокая, но мягкость речи ценится.</p>
+<ul>
+<li><b>por favor</b> — пожалуйста при просьбе, <b>com licença</b> — когда проходишь или перебиваешь.</li>
+<li><b>desculpa</b> — «извини», <b>desculpe</b> — чуть формальнее.</li>
+<li>Просьбу смягчает <i>pode</i>: <i>Pode me ajudar?</i> вместо прямого «помоги».</li>
+<li>Продавцу и официанту говорят просто <i>oi</i> и <i>obrigado</i> — без «сударь».</li>
+<li><b>Imagina!</b> — «да что ты, не за что» в ответ на спасибо.</li>
+</ul>`},
+{t:'Уменьшительные: -inho', b:`
+<p>Бразильцы обожают уменьшительные, и они не всегда про размер — чаще про тепло.</p>
+<ul>
+<li><i>café</i> → <b>cafezinho</b> — маленький крепкий кофе, который предлагают всем.</li>
+<li><i>devagar</i> → <b>devagarinho</b> — совсем медленно.</li>
+<li><i>obrigado</i> → <b>obrigadinho</b> — мягкое спасибо.</li>
+<li><i>jeito</i> → <b>jeitinho</b> — способ обойти правило, местная культурная институция.</li>
+</ul>`},
+{t:'Слова-паразиты, которые звучат по-местному', b:`
+<ul>
+<li><b>né?</b> — «да?» в конце фразы.</li>
+<li><b>tá</b> — короткое «ок» (от está).</li>
+<li><b>beleza</b> / <b>tranquilo</b> — «всё ок, без проблем».</li>
+<li><b>nossa!</b> — «ого!».</li>
+<li><b>poxa</b> — «эх, досадно».</li>
+<li><b>então</b> — «ну, итак» в начале мысли.</li>
+<li><b>tipo</b> — «типа», заполняет паузу.</li>
+<li><b>valeu</b> — «спасибо, бро» между своими.</li>
+</ul>`},
+{t:'Санта-Катарина: местные особенности', b:`
+<p>Во Флорианополисе и вокруг свой акцент — <i>manezinho</i>: речь быстрая, <b>s</b> часто звучит как «ш» (<i>festa</i> → фешта), а вместо <i>você</i> можно услышать <b>tu</b> с формой глагола как при «он»: <i>tu vai</i>.</p>
+<p>Пара местных слов: <b>praia</b> тут мера всего, <b>trapiche</b> — пирс, <b>sequinha</b> — холодное пиво, <b>tri</b> (юг Бразилии) — «очень».</p>
+<p>Понимать вас будут с любым акцентом: бразильцы привыкли к приезжим и почти всегда переходят на медленный режим, если попросить: <i>Pode falar devagar, por favor?</i></p>`}
+];
+
+/* ============ РАЗГОВОРНИК ============ */
+const PHRASES=[
+{c:'Первое знакомство', p:[
+['Oi, tudo bem?','Привет, как дела?','ой, ту́ду бэн'],['Prazer em te conhecer.','Приятно познакомиться.','празе́р эн тчи коньесе́р'],['Meu nome é…','Меня зовут…','ме́у но́ми э'],['Eu sou da Rússia.','Я из России.','эу со́у да ху́сиа'],['Estou aprendendo português.','Я учу португальский.','исто́у апренде́нду португе́с'],['Pode falar devagar, por favor?','Можете говорить медленнее?','по́джи фала́р джевага́р, пур фаво́р'],['Desculpa, não entendi.','Извините, я не понял.','джискуу́па, на́у энтенджи́'],['Como se diz isso em português?','Как это сказать по-португальски?','ко́му си джис и́су эн португе́с'],['Você fala inglês?','Вы говорите по-английски?','восе́ фа́ла инглэ́с']]},
+{c:'Кафе и еда', p:[
+['Um café, por favor.','Один кофе, пожалуйста.','ун кафе́, пур фаво́р'],['Uma mesa para dois.','Столик на двоих.','у́ма ме́за пара до́йс'],['O cardápio, por favor.','Меню, пожалуйста.','у карда́пиу, пур фаво́р'],['Eu quero isso.','Я хочу вот это.','эу ке́ру и́су'],['Sem gelo, por favor.','Без льда, пожалуйста.','сэн же́лу, пур фаво́р'],['Para viagem.','С собой.','пара виа́жен'],['A conta, por favor.','Счёт, пожалуйста.','а ко́нта, пур фаво́р'],['Está muito gostoso!','Очень вкусно!','иста́ му́йту госто́зу'],['Eu não como carne.','Я не ем мясо.','эу на́у ко́му ка́рни'],['Tem opção vegetariana?','Есть вегетарианский вариант?','тэн опса́у вежетариа́на']]},
+{c:'Покупки и деньги', p:[
+['Quanto custa?','Сколько стоит?','куа́нту ку́ста'],['Pode ser no pix?','Можно по Pix?','по́джи сэр ну пи́кс'],['Aceita cartão?','Карту принимаете?','асе́йта карта́у'],['Tem desconto?','Скидка есть?','тэн джиско́нту'],['Está muito caro.','Это очень дорого.','иста́ му́йту ка́ру'],['Só estou olhando, obrigado.','Я просто смотрю, спасибо.','со исто́у олья́нду, обрига́ду'],['Pode embalar, por favor?','Можете упаковать, пожалуйста?','по́джи эмбала́р, пур фаво́р'],['Preciso de uma sacola.','Мне нужен пакет.','преси́зу джи у́ма сако́ла'],['Onde fica o caixa?','Где касса?','о́нджи фи́ка у ка́йша']]},
+{c:'Дорога и транспорт', p:[
+['Onde fica…?','Где находится…?','о́нджи фи́ка'],['É perto daqui?','Это близко отсюда?','э пе́рту даки́'],['Quanto tempo demora?','Сколько времени занимает?','куа́нту те́мпу демо́ра'],['Vire à direita.','Поверните направо.','ви́ри а джире́йта'],['Siga reto.','Идите прямо.','си́га хе́ту'],['Onde fica o ponto de ônibus?','Где автобусная остановка?','о́нджи фи́ка у по́нту джи о́нибус'],['Esse ônibus vai ao centro?','Этот автобус идёт в центр?','э́си о́нибус ва́й а́у се́нтру'],['Pode me chamar um Uber?','Можете вызвать мне Uber?','по́джи ми шама́р ун у́бер'],['Estou perdido.','Я заблудился.','исто́у перджи́ду']]},
+{c:'Аренда жилья', p:[
+['Quanto é o aluguel?','Сколько стоит аренда?','куа́нту э у алуге́у'],['O condomínio está incluso?','Обслуживание дома включено?','у кондоми́ниу иста́ инклу́зу'],['É mobiliado?','С мебелью?','э мобилиа́ду'],['Posso ver o apartamento?','Можно посмотреть квартиру?','по́су вэр у апартаме́нту'],['Tem internet?','Интернет есть?','тэн интерне́тчи'],['Aceita animais?','Можно с животными?','асе́йта анима́йс'],['Qual é o valor do depósito?','Какой залог?','куа́у э у вало́р ду депо́зиту'],['Preciso assinar um contrato?','Нужно подписывать договор?','преси́зу асина́р ун контра́ту'],['O chuveiro não funciona.','Душ не работает.','у шуве́йру на́у фунсио́на']]},
+{c:'Документы и банк', p:[
+['Preciso abrir uma conta.','Мне нужно открыть счёт.','преси́зу абри́р у́ма ко́нта'],['Meu CPF é…','Мой CPF…','ме́у се-пе-э́фи э'],['Tem que agendar?','Нужно записываться?','тэн ки аженда́р'],['Qual documento preciso levar?','Какой документ нужно взять?','куа́у докуме́нту преси́зу лева́р'],['Pode me ajudar com isso?','Можете помочь мне с этим?','по́джи ми ажуда́р кон и́су'],['Não falo português muito bem.','Я не очень хорошо говорю по-португальски.','на́у фа́лу португе́с му́йту бэн'],['Pode escrever, por favor?','Можете написать, пожалуйста?','по́джи искреве́р, пур фаво́р']]},
+{c:'Аптека и здоровье', p:[
+['Onde fica a farmácia?','Где аптека?','о́нджи фи́ка а фарма́сиа'],['Tem alguma coisa para dor de cabeça?','Есть что-нибудь от головной боли?','тэн аугу́ма ко́йза пара дор джи кабе́са'],['Não estou me sentindo bem.','Я плохо себя чувствую.','на́у исто́у ми сенчи́нду бэн'],['Preciso de um médico.','Мне нужен врач.','преси́зу джи ун ме́джику'],['Precisa de receita?','Нужен рецепт?','преси́за джи хесе́йта'],['Tem protetor solar?','Солнцезащитный крем есть?','тэн протето́р сола́р'],['Onde fica o hospital mais perto?','Где ближайшая больница?','о́нджи фи́ка у оспита́у ма́йс пе́рту']]},
+{c:'Пляж и отдых', p:[
+['Vamos à praia?','Пойдём на пляж?','ва́мус а пра́йа'],['A água está gelada!','Вода холодная!','а а́гуа иста́ жела́да'],['Tem onda hoje.','Сегодня есть волны.','тэн о́нда о́жи'],['Uma água de coco, por favor.','Кокосовую воду, пожалуйста.','у́ма а́гуа джи ко́ку, пур фаво́р'],['Pode guardar minha coisa?','Можете присмотреть за моими вещами?','по́джи гуарда́р ми́нья ко́йза'],['Que praia você recomenda?','Какой пляж посоветуешь?','ки пра́йа восе́ хекоме́нда'],['Vai chover hoje?','Сегодня будет дождь?','ва́й шове́р о́жи']]},
+{c:'Работа и созвоны', p:[
+['Bom dia a todos.','Доброе утро всем.','бон джи́а а то́дус'],['Vocês estão me ouvindo?','Вы меня слышите?','восе́с иста́у ми оуви́нду'],['Pode repetir, por favor?','Можете повторить?','по́джи репетчи́р, пур фаво́р'],['Vou mandar por email.','Отправлю по почте.','во́у манда́р пур име́йу'],['Qual é o prazo?','Какой срок?','куа́у э у пра́зу'],['Precisamos de mais tempo.','Нам нужно больше времени.','пресиза́мус джи ма́йс те́мпу'],['Faz sentido.','Это логично.','фа́с сенчи́ду'],['Combinado!','Договорились!','комбина́ду']]},
+{c:'Выручалки на каждый день', p:[
+['Tudo bem, obrigado.','Всё хорошо, спасибо.','ту́ду бэн, обрига́ду'],['Com licença.','Разрешите.','кон лисе́нса'],['Desculpa!','Извини!','джискуу́па'],['Não sei.','Не знаю.','на́у сэ́й'],['Claro!','Конечно!','кла́ру'],['Tranquilo.','Спокойно, без проблем.','транки́лу'],['Valeu!','Спасибо, бро!','вале́у'],['Que legal!','Как классно!','ки лега́у'],['Um momento, por favor.','Минутку, пожалуйста.','ун моме́нту, пур фаво́р'],['Pode me ajudar?','Можете мне помочь?','по́джи ми ажуда́р']]}
+];
+</script>
+
+<script>
+(function(){
+'use strict';
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;};
+const pick=(a,n)=>shuf(a).slice(0,n);
+const today=()=>new Date().toISOString().slice(0,10);
+const dayDiff=(a,b)=>Math.round((new Date(b)-new Date(a))/864e5);
+const norm=s=>String(s).toLowerCase().replace(/[.,!?¡¿;:"'()…]/g,'').replace(/\s+/g,' ').trim();
+const bare=s=>norm(s).normalize('NFD').replace(/[̀-ͯ]/g,'');
+
+/* ---------- индекс материала ---------- */
+const ITEMS={}, WORDS=[], SENTS=[];
+COURSE.forEach((u,ui)=>u.L.forEach((l,li)=>{
+  (l.w||[]).forEach(w=>{const id='w|'+w[0]; if(!ITEMS[id]){ITEMS[id]={id,pt:w[0],ru:w[1],tr:w[2]||'',alt:w[3]||'',k:'w',ui,li};WORDS.push(ITEMS[id]);}});
+  (l.s||[]).forEach(s=>{const id='s|'+s[0]; if(!ITEMS[id]){ITEMS[id]={id,pt:s[0],ru:s[1],tr:s[2]||'',k:'s',ui,li};SENTS.push(ITEMS[id]);}});
+}));
+const lessonId=(ui,li)=>ui+'.'+li;
+const lessonItems=(ui,li)=>{const l=COURSE[ui].L[li];return {w:(l.w||[]).map(w=>ITEMS['w|'+w[0]]).filter(Boolean),s:(l.s||[]).map(s=>ITEMS['s|'+s[0]]).filter(Boolean),d:l.d||[],tip:l.tip};};
+
+/* ---------- состояние и профили ---------- */
+const DEF=()=>({xp:0,streak:0,lastDay:null,day:null,dayXp:0,lessons:{},cards:{},settings:{tts:1,rate:.9,goal:30,translit:1,theme:'system'}});
+let store={v:1,updatedAt:0,profiles:[{id:'p1',name:'Иван'},{id:'p2',name:'Анна'}],active:'p1',data:{}};
+let st=DEF();
+let cloud=null, cloudDoc=null, cloudOk=false, saveTimer=null;
+
+function loadLocal(){
+  try{const raw=localStorage.getItem(LSKEY); if(raw){const o=JSON.parse(raw); if(o&&o.data)store=o;}}catch(e){}
+  if(!store.profiles||!store.profiles.length)store.profiles=[{id:'p1',name:'Иван'}];
+  store.profiles.forEach(p=>{ if(p.name==='Я')p.name='Иван'; if(p.name==='Жена')p.name='Анна'; });
+  if(!store.data)store.data={};
+  if(!store.profiles.some(p=>p.id===store.active))store.active=store.profiles[0].id;
+  useProfile(store.active,true);
+}
+function useProfile(id,quiet){
+  store.active=id;
+  const d=store.data[id];
+  st=Object.assign(DEF(),d||{});
+  st.settings=Object.assign(DEF().settings,(d&&d.settings)||{});
+  store.data[id]=st;
+  applyTheme();
+  if(!quiet){save();renderAll();}
+}
+function save(){
+  store.data[store.active]=st; store.updatedAt=Date.now();
+  try{localStorage.setItem(LSKEY,JSON.stringify(store));}catch(e){}
+  if(cloudDoc){clearTimeout(saveTimer);saveTimer=setTimeout(pushCloud,1200);}
+  paintHeader();
+}
+const LSKEY='falabrasil.v1';
+async function pushCloud(){
+  if(!cloudDoc)return;
+  try{ await cloudDoc.set({payload:JSON.stringify(store),updatedAt:store.updatedAt}); setSync(true,'синхронизировано'); }
+  catch(e){ cloudOk=false; setSync(false,'только на этом устройстве'); }
+}
+async function initCloud(){
+  try{
+    if(!window.claude||!window.claude.use)return;
+    const [u,db]=await Promise.all([claude.use('user'),claude.use('db')]);
+    if(!u||!db)return;
+    const uid=await u.id(); if(!uid)return;
+    cloud=db; cloudDoc=db.collection('data/users/'+uid).doc('progress');
+    const snap=await cloudDoc.get();
+    if(snap&&snap.exists){
+      const d=snap.data()||{};
+      if(d.payload&&(d.updatedAt||0)>(store.updatedAt||0)){
+        try{const o=JSON.parse(d.payload); if(o&&o.data){store=o; if(!store.profiles.some(p=>p.id===store.active))store.active=store.profiles[0].id; useProfile(store.active,true); renderAll();}}catch(e){}
+      }
+    }
+    cloudOk=true; setSync(true,'синхронизировано');
+    pushCloud();
+  }catch(e){}
+}
+function setSync(on,txt){const el=$('#d-sync'); if(!el)return; el.className='sync'+(on?' on':''); el.querySelector('span').textContent=txt;}
+
+/* ---------- озвучка ---------- */
+let ptVoice=null, primed=false;
+function loadVoices(){
+  try{const v=speechSynthesis.getVoices()||[];
+    ptVoice=v.find(x=>/pt[-_]BR/i.test(x.lang))||v.find(x=>/^pt/i.test(x.lang))||null;}catch(e){}
+}
+if(window.speechSynthesis){loadVoices();speechSynthesis.onvoiceschanged=loadVoices;}
+function say(text){
+  if(!st.settings.tts||!window.speechSynthesis)return;
+  try{
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(String(text));
+    u.lang='pt-BR'; if(ptVoice)u.voice=ptVoice;
+    u.rate=Number(st.settings.rate)||.9;
+    speechSynthesis.speak(u); primed=true;
+  }catch(e){}
+}
+document.addEventListener('pointerdown',function p(){ if(!primed&&window.speechSynthesis){try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u);primed=true;}catch(e){}} document.removeEventListener('pointerdown',p);},{once:true});
+
+/* ---------- SRS ---------- */
+function card(id){ if(!st.cards[id])st.cards[id]={e:2.5,i:0,due:0,r:0,l:0}; return st.cards[id]; }
+function gradeCard(id,ok){
+  const c=card(id), now=Date.now();
+  if(ok){ c.r++; c.e=Math.min(2.8,c.e+.03);
+    c.i = c.i===0?1 : c.i===1?3 : Math.round(c.i*c.e);
+    c.due=now+c.i*864e5;
+  }else{ c.l++; c.r=0; c.e=Math.max(1.7,c.e-.2); c.i=0; c.due=now+6e5; }
+}
+const dueIds=()=>Object.keys(st.cards).filter(id=>ITEMS[id]&&st.cards[id].due<=Date.now()&&st.cards[id].r>0);
+const learnIds=()=>Object.keys(st.cards).filter(id=>ITEMS[id]&&st.cards[id].i<10);
+const knownIds=()=>Object.keys(st.cards).filter(id=>ITEMS[id]&&st.cards[id].i>=10);
+const weakIds=()=>Object.keys(st.cards).filter(id=>ITEMS[id]&&st.cards[id].l>0).sort((a,b)=>st.cards[b].l-st.cards[a].l);
+
+/* ---------- XP, серия ---------- */
+function addXp(n){
+  const t=today();
+  if(st.day!==t){st.day=t;st.dayXp=0;}
+  st.xp+=n; st.dayXp+=n;
+}
+function touchStreak(){
+  const t=today();
+  if(st.lastDay===t)return;
+  st.streak=(st.lastDay&&dayDiff(st.lastDay,t)===1)?st.streak+1:1;
+  st.lastDay=t;
+}
+
+/* ---------- заголовок / шапка ---------- */
+function paintHeader(){
+  const t=today(); if(st.day!==t){st.day=t;st.dayXp=0;}
+  const d=dueIds().length;
+  ['#m-streak','#d-streak'].forEach(s=>{const e=$(s);if(e)e.textContent=st.streak;});
+  ['#m-xp','#d-xp'].forEach(s=>{const e=$(s);if(e)e.textContent=st.xp;});
+  const p=$('#d-pname'), act=store.profiles.find(x=>x.id===store.active)||{name:'Иван'};
+  if(p)p.textContent=act.name;
+  ['#m-av','#d-av'].forEach(s=>{const e=$(s);if(e)e.textContent=(act.name||'?').trim().charAt(0).toUpperCase();});
+  const rd=$('#rail-due'); if(rd)rd.textContent=d?d:'';
+  const goal=Math.max(10,st.settings.goal||30), pct=Math.min(100,Math.round(st.dayXp/goal*100));
+  const ring=$('#goal-ring'); if(ring){ring.style.setProperty('--p',pct+'%');$('#goal-num').textContent=st.dayXp;}
+  const gt=$('#goal-txt'); if(gt)gt.textContent=st.dayXp+' / '+goal+' XP';
+  const gb=$('#goal-bar'); if(gb)gb.style.width=pct+'%';
+  const cta=$('#btn-review-cta'); if(cta){cta.hidden=!d;$('#cta-due').textContent=d;}
+  ['#st-due','#st-learn','#st-known'].forEach((s,i)=>{const e=$(s);if(e)e.textContent=[d,learnIds().length,knownIds().length][i];});
+  const h=$('#hero-h'); if(h)h.textContent=st.streak>0?'Oi! Серия: '+st.streak+' '+plural(st.streak,'день','дня','дней'):'Oi! Vamos aprender.';
+}
+function plural(n,a,b,c){const m=n%100,k=n%10;return m>10&&m<20?c:k===1?a:k>1&&k<5?b:c;}
+function applyTheme(){
+  const th=st.settings.theme||'system';
+  if(th==='system')document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.setAttribute('data-theme',th);
+}
+
+/* ---------- экраны ---------- */
+function renderUnits(){
+  const first=firstUndone();
+  $('#units').innerHTML=COURSE.map((u,ui)=>{
+    const rows=u.L.map((l,li)=>{
+      const done=!!st.lessons[lessonId(ui,li)];
+      const now=first&&first[0]===ui&&first[1]===li;
+      const nw=(l.w||[]).length, ns=(l.s||[]).length;
+      return `<button class="lesson" data-u="${ui}" data-l="${li}">
+        <span class="dot ${done?'done':now?'now':''}">${done?'✓':li+1}</span>
+        <span class="lesson-t"><b>${esc(l.t)}</b><small>${nw} слов · ${ns} фраз${done?' · пройден':''}</small></span>
+        <span class="go">${done?'повторить':now?'начать':'открыть'}</span></button>`;
+    }).join('');
+    const dn=u.L.filter((l,li)=>st.lessons[lessonId(ui,li)]).length;
+    return `<section class="unit"><div class="unit-head">
+      <span class="unit-num">${ui+1}</span>
+      <h3>${esc(u.ru)}<span class="pt">${esc(u.n)}</span></h3>
+      <span class="muted tnum" style="margin-left:auto;font-size:13px">${dn}/${u.L.length}</span>
+    </div><div class="lessons">${rows}</div></section>`;
+  }).join('');
+  $$('#units .lesson').forEach(b=>b.onclick=()=>startLesson(+b.dataset.u,+b.dataset.l));
+}
+function firstUndone(){
+  for(let ui=0;ui<COURSE.length;ui++)for(let li=0;li<COURSE[ui].L.length;li++)
+    if(!st.lessons[lessonId(ui,li)])return [ui,li];
+  return null;
+}
+function renderVocab(){
+  const ids=Object.keys(st.cards).filter(id=>ITEMS[id]);
+  const box=$('#vocab-list');
+  if(!ids.length){box.innerHTML='<div class="row"><div class="txt muted">Пока пусто — пройди первый урок, и слова появятся здесь.</div></div>';return;}
+  ids.sort((a,b)=>st.cards[a].due-st.cards[b].due);
+  box.innerHTML=ids.slice(0,300).map(id=>{
+    const it=ITEMS[id], c=st.cards[id];
+    const left=c.due-Date.now();
+    const when=left<=0?'пора повторить':left<36e5?'через час':left<864e5?'сегодня':'через '+Math.round(left/864e5)+' д.';
+    const strength=Math.min(5,Math.max(1,Math.round(c.i>=10?5:c.i>=4?4:c.i>=2?3:c.r>0?2:1)));
+    return `<div class="row"><button class="play" data-say="${esc(it.pt)}" aria-label="Послушать">▶</button>
+      <div class="txt"><div class="ptw">${esc(it.pt)}</div><div class="ruw">${esc(it.ru)}</div></div>
+      <div style="text-align:right"><div style="font-size:12px;color:var(--teal);font-weight:600">${'●'.repeat(strength)}<span style="color:var(--line)">${'●'.repeat(5-strength)}</span></div><div class="muted" style="font-size:11.5px">${when}</div></div></div>`;
+  }).join('');
+  wireSay(box);
+}
+function renderGrammar(){
+  $('#grammar-list').innerHTML=GRAMMAR.map(g=>`<details class="acc"><summary>${esc(g.t)}</summary><div class="acc-body">${g.b}</div></details>`).join('');
+}
+function renderPhrases(q){
+  q=bare(q||'');
+  $('#phrases-list').innerHTML=PHRASES.map(cat=>{
+    const items=cat.p.filter(p=>!q||bare(p[0]).includes(q)||bare(p[1]).includes(q)||bare(cat.c).includes(q));
+    if(!items.length)return '';
+    return `<div class="sec-title">${esc(cat.c)}</div><div class="card">`+items.map(p=>
+      `<div class="row"><button class="play" data-say="${esc(p[0])}" aria-label="Послушать">▶</button>
+       <div class="txt"><div class="ptw">${esc(p[0])}</div><div class="ruw">${esc(p[1])}</div>${st.settings.translit?`<div class="trw">${esc(p[2]||'')}</div>`:''}</div></div>`).join('')+`</div>`;
+  }).join('')||'<p class="muted">Ничего не нашлось.</p>';
+  wireSay($('#phrases-list'));
+}
+function wireSay(root){ root.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>say(b.dataset.say)); }
+function renderAll(){ paintHeader(); renderUnits(); renderVocab(); renderPhrases($('#ph-search').value); }
+
+function showView(v){
+  ['course','review','grammar','phrases'].forEach(n=>{ $('#view-'+n).hidden=(n!==v); });
+  $$('[data-view]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.view===v)));
+  if(v==='review')renderVocab();
+  window.scrollTo(0,0);
+}
+
+/* ---------- сборка занятия ---------- */
+function distract(it,n,pool){
+  const base=(pool||WORDS).filter(x=>x.id!==it.id&&bare(x.ru)!==bare(it.ru)&&bare(x.pt)!==bare(it.pt));
+  const near=base.filter(x=>x.ui===it.ui);
+  const out=[];
+  pick(near,n).forEach(x=>out.push(x));
+  if(out.length<n)pick(base.filter(x=>!out.includes(x)),n-out.length).forEach(x=>out.push(x));
+  return out;
+}
+function exMC(it,dir){ return {k:dir==='pt'?'mc_pt':'mc_ru',it}; }
+function buildLesson(ui,li){
+  const L=lessonItems(ui,li), q=[];
+  const fresh=L.w.filter(w=>!st.cards[w.id]);
+  const teach=fresh.length?fresh:[];
+  if(L.tip)q.push({k:'tip',tip:L.tip});
+  const chunks=[];
+  for(let i=0;i<teach.length;i+=4)chunks.push(teach.slice(i,i+4));
+  chunks.forEach(ch=>{
+    ch.forEach(w=>q.push({k:'teach',it:w}));
+    shuf(ch).forEach(w=>q.push(exMC(w,'pt')));
+    pick(ch,Math.min(2,ch.length)).forEach(w=>q.push(exMC(w,'ru')));
+  });
+  const rest=L.w.filter(w=>!teach.includes(w));
+  shuf(rest).forEach(w=>q.push(exMC(w,Math.random()<.5?'pt':'ru')));
+  if(L.w.length>=6)q.push({k:'match',pool:pick(L.w,5)});
+  shuf(L.s).slice(0,4).forEach(s=>q.push({k:'build',it:s}));
+  pick(L.s.length?L.s:L.w,Math.min(2,(L.s.length||L.w.length))).forEach(x=>q.push({k:'listen',it:x}));
+  (L.d||[]).forEach(d=>q.push({k:'gap',d}));
+  pick(L.w,Math.min(2,L.w.length)).forEach(w=>q.push({k:'type',it:w}));
+  return q;
+}
+function buildReview(ids,n){
+  const list=pick(ids,n||18).map(id=>ITEMS[id]).filter(Boolean);
+  const kinds=['mc_pt','mc_ru','listen','type','build'];
+  return list.map((it,i)=>{
+    let k=kinds[i%kinds.length];
+    if(it.k==='w'&&k==='build')k='mc_pt';
+    if(it.k==='s'&&(k==='type'))k='build';
+    return {k,it};
+  });
+}
+
+/* ---------- плеер ---------- */
+let P=null;
+function startLesson(ui,li){ run({mode:'lesson',ui,li,queue:buildLesson(ui,li),title:COURSE[ui].L[li].t}); }
+function startReview(){
+  let ids=dueIds();
+  if(!ids.length)ids=learnIds();
+  if(!ids.length){toast('Сначала пройди урок — появятся слова для повторения.');return;}
+  run({mode:'review',queue:buildReview(ids),title:'Повторение'});
+}
+function startWeak(){
+  const ids=weakIds();
+  if(!ids.length){toast('Слабых слов нет. Отличная работа!');return;}
+  run({mode:'review',queue:buildReview(ids,15),title:'Слабые слова'});
+}
+function run(cfg){
+  P=Object.assign({idx:0,right:0,wrong:0,answered:false,ok:false,sel:null,tiles:[],pairs:null,gained:0},cfg);
+  P.total=P.queue.length;
+  document.body.style.overflow='hidden';
+  drawQ();
+}
+function exitPlayer(){ P=null; $('#player-root').innerHTML=''; document.body.style.overflow=''; renderAll(); }
+function qLabel(k){return {mc_pt:'Выбери перевод',mc_ru:'Что это значит?',listen:'Слушай и выбери',build:'Собери фразу',type:'Напиши по-португальски',match:'Соедини пары',gap:'Вставь слово',teach:'Новое слово',tip:'Подсказка'}[k]||'';}
+
+function drawQ(){
+  if(!P)return;
+  if(P.idx>=P.queue.length){drawFinish();return;}
+  const q=P.queue[P.idx];
+  P.answered=false;P.ok=false;P.sel=null;P.tiles=[];P.pairs=null;
+  const pct=Math.round(P.idx/P.total*100);
+  let body='', primary='Проверить', instant=false;
+
+  if(q.k==='tip'){
+    instant=true;primary='Понятно';
+    body=`<div class="tip"><b>${esc(q.tip[0])}</b>${q.tip[1]}</div>`;
+  }
+  if(q.k==='teach'){
+    instant=true;primary='Дальше';
+    body=`<div class="teach"><div class="w">${esc(q.it.pt)}</div>
+      ${st.settings.translit&&q.it.tr?`<div class="tr">${esc(q.it.tr)}</div>`:''}
+      <div class="ru">${esc(q.it.ru)}</div>
+      <button class="play" data-say="${esc(q.it.pt)}" aria-label="Послушать">▶</button></div>`;
+  }
+  if(q.k==='mc_pt'||q.k==='mc_ru'||q.k==='listen'){
+    const opts=shuf([q.it].concat(distract(q.it,3,q.it.k==='s'?SENTS:WORDS)));
+    P.opts=opts;
+    const isRu=q.k==='mc_ru';
+    body=(q.k==='listen'
+      ? `<div style="display:flex;justify-content:center;margin:6px 0 22px"><button class="play" style="width:78px;height:78px;border-radius:50%;font-size:28px" data-say="${esc(q.it.pt)}" aria-label="Послушать">▶</button></div>`
+      : `<div class="q-prompt ${isRu?'pt':''}">${esc(isRu?q.it.pt:q.it.ru)}</div>${isRu&&st.settings.translit&&q.it.tr?`<div class="q-sub">${esc(q.it.tr)}</div>`:'<div class="q-sub"></div>'}`)
+      +`<div class="opts">`+opts.map((o,i)=>`<button class="opt" data-i="${i}">
+         <span class="${isRu?'':'pt'}">${esc(isRu?o.ru:o.pt)}</span><kbd>${i+1}</kbd></button>`).join('')+`</div>`;
+  }
+  if(q.k==='gap'){
+    const opts=shuf(q.d.o.slice());P.opts=opts;
+    body=`<div class="q-prompt pt">${esc(q.d.q).replace('___','<span style="color:var(--teal)">_____</span>')}</div>
+      <div class="q-sub">${esc(q.d.ru)}</div>
+      <div class="opts">`+opts.map((o,i)=>`<button class="opt" data-i="${i}"><span class="pt">${esc(o)}</span><kbd>${i+1}</kbd></button>`).join('')+`</div>`;
+  }
+  if(q.k==='build'){
+    const words=q.it.pt.split(/\s+/);
+    const extra=pick(WORDS.filter(w=>!words.some(x=>bare(x)===bare(w.pt))),2).map(w=>w.pt.split(/\s+/)[0]);
+    P.bank=shuf(words.concat(extra));
+    body=`<div class="q-prompt">${esc(q.it.ru)}</div><div class="q-sub">Собери фразу из слов</div>
+      <div class="slot" id="slot"></div>
+      <div class="tiles" id="bank">`+P.bank.map((w,i)=>`<button class="tile" data-i="${i}">${esc(w)}</button>`).join('')+`</div>`;
+  }
+  if(q.k==='type'){
+    body=`<div class="q-prompt">${esc(q.it.ru)}</div><div class="q-sub">Напиши по-португальски${q.it.tr&&st.settings.translit?' · '+esc(q.it.tr):''}</div>
+      <input class="inp" id="typed" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="text" placeholder="…">
+      <div class="muted" style="font-size:12.5px;margin-top:8px">Знаки á ã ç ê õ можно не ставить — подскажу правильное написание.</div>`;
+  }
+  if(q.k==='match'){
+    P.pairs={sel:null,done:0,left:shuf(q.pool),right:shuf(q.pool)};
+    body=`<div class="q-prompt" style="font-size:19px">Соедини слово и перевод</div><div class="q-sub"></div>
+      <div class="pairs">
+        <div style="display:grid;gap:10px">`+P.pairs.left.map(x=>`<button class="pair" data-side="l" data-id="${esc(x.id)}"><span class="pt">${esc(x.pt)}</span></button>`).join('')+`</div>
+        <div style="display:grid;gap:10px">`+P.pairs.right.map(x=>`<button class="pair" data-side="r" data-id="${esc(x.id)}">${esc(x.ru)}</button>`).join('')+`</div>
+      </div>`;
+    instant=false;primary='Готово';
+  }
+
+  $('#player-root').innerHTML=`<div class="player">
+    <div class="player-top">
+      <button class="iconbtn" id="pl-close" aria-label="Выйти">✕</button>
+      <div class="bar"><i style="width:${pct}%"></i></div>
+      <span class="chip xp tnum">+${P.gained}</span>
+    </div>
+    <div class="player-body"><div class="player-in">
+      <div class="q-kicker">${esc(qLabel(q.k))}</div>
+      ${body}
+    </div></div>
+    <div class="fb"><div class="fb-in">
+      <div id="fb-msg"></div>
+      <button class="btn block" id="pl-primary" ${instant||q.k==='match'?'':'disabled'}>${primary}</button>
+    </div></div>
+  </div>`;
+
+  $('#pl-close').onclick=exitPlayer;
+  wireSay($('#player-root'));
+  const prim=$('#pl-primary');
+  prim.onclick=()=>{ if(P.answered)next(); else if(instant){gainXp(0);next();} else checkAnswer(); };
+
+  if(q.k==='teach')say(q.it.pt);
+  if(q.k==='listen')setTimeout(()=>say(q.it.pt),250);
+
+  if(q.k==='mc_pt'||q.k==='mc_ru'||q.k==='listen'||q.k==='gap'){
+    $$('#player-root .opt').forEach(b=>b.onclick=()=>{
+      if(P.answered)return;
+      $$('#player-root .opt').forEach(x=>x.setAttribute('aria-pressed','false'));
+      b.setAttribute('aria-pressed','true'); P.sel=+b.dataset.i; prim.disabled=false;
+    });
+  }
+  if(q.k==='build'){
+    const slot=$('#slot'),bank=$('#bank');
+    const sync=()=>{ slot.innerHTML=P.tiles.map((t,i)=>`<button class="tile" data-s="${i}">${esc(t.w)}</button>`).join('');
+      slot.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{ if(P.answered)return; const i=+b.dataset.s; const t=P.tiles.splice(i,1)[0];
+        bank.querySelector('[data-i="'+t.i+'"]').classList.remove('used'); sync(); });
+      prim.disabled=!P.tiles.length; };
+    bank.querySelectorAll('.tile').forEach(b=>b.onclick=()=>{ if(P.answered)return; b.classList.add('used');
+      P.tiles.push({i:+b.dataset.i,w:P.bank[+b.dataset.i]}); sync(); });
+    sync();
+  }
+  if(q.k==='type'){
+    const inp=$('#typed');
+    inp.oninput=()=>{prim.disabled=!inp.value.trim();};
+    inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();prim.click();}};
+    setTimeout(()=>{ if(window.matchMedia('(min-width:900px)').matches)inp.focus(); },60);
+  }
+  if(q.k==='match'){
+    const upd=()=>{prim.disabled=P.pairs.done<q.pool.length;};
+    $$('#player-root .pair').forEach(b=>b.onclick=()=>{
+      if(b.classList.contains('done'))return;
+      const side=b.dataset.side;
+      const sel=P.pairs.sel;
+      if(!sel||sel.side===side){ $$('#player-root .pair').forEach(x=>x.classList.remove('sel')); b.classList.add('sel'); P.pairs.sel={side,id:b.dataset.id,el:b}; return; }
+      if(sel.id===b.dataset.id){ b.classList.add('done'); sel.el.classList.add('done'); sel.el.classList.remove('sel');
+        P.pairs.sel=null; P.pairs.done++; gradeCard(b.dataset.id,true); gainXp(1); upd();
+      } else { b.classList.add('bad'); const s=sel.el; setTimeout(()=>{b.classList.remove('bad');s.classList.remove('sel');},450);
+        gradeCard(b.dataset.id,false); P.pairs.sel=null; P.wrong++; }
+    });
+    upd();
+  }
+}
+function gainXp(n){ if(n){P.gained+=n;addXp(n);} }
+
+function checkAnswer(){
+  const q=P.queue[P.idx]; let ok=false, right='', note='';
+  if(q.k==='mc_pt'||q.k==='mc_ru'||q.k==='listen'){
+    const chosen=P.opts[P.sel]; ok=chosen.id===q.it.id;
+    right=q.k==='mc_ru'?q.it.ru:q.it.pt;
+    $$('#player-root .opt').forEach((b,i)=>{ const o=P.opts[i];
+      if(o.id===q.it.id)b.classList.add('good'); else if(i===P.sel)b.classList.add('bad'); b.disabled=true; });
+    gradeCard(q.it.id,ok);
+  }
+  if(q.k==='gap'){
+    const chosen=P.opts[P.sel]; ok=bare(chosen)===bare(q.d.a); right=q.d.a;
+    $$('#player-root .opt').forEach((b,i)=>{ if(bare(P.opts[i])===bare(q.d.a))b.classList.add('good'); else if(i===P.sel)b.classList.add('bad'); b.disabled=true; });
+  }
+  if(q.k==='build'){
+    const said=P.tiles.map(t=>t.w).join(' ');
+    ok=norm(said)===norm(q.it.pt)||bare(said)===bare(q.it.pt); right=q.it.pt;
+    if(ok&&norm(said)!==norm(q.it.pt))note='Почти: '+q.it.pt;
+    gradeCard(q.it.id,ok);
+  }
+  if(q.k==='type'){
+    const v=$('#typed').value, alts=[q.it.pt].concat((q.it.alt||'').split('|').filter(Boolean));
+    ok=alts.some(a=>norm(v)===norm(a));
+    if(!ok&&alts.some(a=>bare(v)===bare(a))){ ok=true; note='Правильно, но со знаками: '+q.it.pt; }
+    right=q.it.pt; gradeCard(q.it.id,ok);
+  }
+  if(q.k==='match'){ finishStep(true,'','Все пары собраны.'); return; }
+  finishStep(ok,right,note);
+}
+function finishStep(ok,right,note){
+  const q=P.queue[P.idx];
+  P.answered=true; P.ok=ok;
+  if(ok){P.right++;gainXp(2);}else{P.wrong++;}
+  if(!ok&&q.k!=='match'){ const copy=Object.assign({},q); P.queue.splice(Math.min(P.queue.length,P.idx+3),0,copy); P.total=P.queue.length; }
+  const m=$('#fb-msg');
+  m.innerHTML=ok
+    ? `<div class="fb-msg ok"><span class="ico">✓</span><span>${note?esc(note):'Верно!'}</span></div>`
+    : `<div class="fb-msg no"><span class="ico">✕</span><span>Правильно: <b>${esc(right)}</b>${ITEMS['w|'+right]||ITEMS['s|'+right]?' — '+esc((ITEMS['w|'+right]||ITEMS['s|'+right]).ru):''}</span></div>`;
+  const prim=$('#pl-primary'); prim.textContent=ok?'Дальше':'Понятно'; prim.disabled=false; prim.className='btn block'+(ok?'':' coral');
+  if(!ok&&q.it)say(q.it.pt);
+  save();
+}
+function next(){ P.idx++; drawQ(); }
+
+function drawFinish(){
+  const acc=P.right+P.wrong?Math.round(P.right/(P.right+P.wrong)*100):100;
+  if(P.mode==='lesson'){ st.lessons[lessonId(P.ui,P.li)]=1; addXp(10); P.gained+=10; }
+  touchStreak(); save();
+  const nxt=firstUndone();
+  $('#player-root').innerHTML=`<div class="player"><div class="player-body"><div class="player-in">
+    <div class="finish">
+      <div style="font-size:46px">🇧🇷</div>
+      <div class="big">${P.mode==='lesson'?'Урок пройден!':'Повторение готово!'}</div>
+      <div class="statgrid" style="width:100%;margin-top:4px">
+        <div class="stat"><b class="tnum">+${P.gained}</b><small>XP</small></div>
+        <div class="stat"><b class="tnum">${acc}%</b><small>точность</small></div>
+        <div class="stat"><b class="tnum">${st.streak}</b><small>дней серии</small></div>
+      </div>
+      <div style="display:grid;gap:10px;width:100%;margin-top:12px">
+        ${P.mode==='lesson'&&nxt?`<button class="btn block" id="fin-next">Следующий урок: ${esc(COURSE[nxt[0]].L[nxt[1]].t)}</button>`:''}
+        <button class="btn ghost block" id="fin-done">Вернуться</button>
+      </div>
+    </div></div></div></div>`;
+  const b=$('#fin-next'); if(b)b.onclick=()=>{const n=firstUndone(); exitPlayer(); if(n)startLesson(n[0],n[1]);};
+  $('#fin-done').onclick=exitPlayer;
+}
+
+/* ---------- модалки ---------- */
+function closeModal(){ $('#modal-root').innerHTML=''; }
+function modal(html){
+  $('#modal-root').innerHTML=`<div class="modal" id="mb"><div class="modal-card">${html}</div></div>`;
+  $('#mb').onclick=e=>{ if(e.target.id==='mb')closeModal(); };
+}
+function profileModal(){
+  modal(`<h2 style="font-size:18px;margin-bottom:4px">Профиль</h2>
+    <p class="muted" style="font-size:13.5px;margin:0 0 14px">У каждого свой прогресс, своя серия и свой словарь.</p>
+    <div class="profiles" id="plist"></div>
+    <div class="field"><label>Добавить профиль</label>
+      <div style="display:flex;gap:8px"><input type="text" id="np" placeholder="Имя" maxlength="18" style="flex:1">
+      <button class="btn" id="npadd" style="min-height:46px;padding:10px 16px">Добавить</button></div></div>
+    <button class="btn ghost block" onclick="void 0" id="pclose">Закрыть</button>`);
+  const draw=()=>{
+    $('#plist').innerHTML=store.profiles.map(p=>{
+      const d=store.data[p.id]||{};
+      return `<button class="pbtn ${p.id===store.active?'on':''}" data-p="${p.id}">
+        <span class="av">${esc((p.name||'?').charAt(0).toUpperCase())}</span>
+        <span><b>${esc(p.name)}</b><small>${(d.xp||0)} XP · серия ${(d.streak||0)}</small></span>
+        ${store.profiles.length>1?`<span class="muted" data-del="${p.id}" style="margin-left:auto;font-size:12px">удалить</span>`:''}</button>`;
+    }).join('');
+    $$('#plist [data-p]').forEach(b=>b.onclick=e=>{
+      const del=e.target.dataset&&e.target.dataset.del;
+      if(del){
+        e.stopPropagation();
+        if(e.target.dataset.armed){ dropProfile(del); }
+        else { e.target.dataset.armed='1'; e.target.textContent='точно?'; e.target.style.color='var(--coral)'; }
+        return;
+      }
+      useProfile(b.dataset.p); closeModal();
+    });
+  };
+  const dropProfile=id=>{ store.profiles=store.profiles.filter(p=>p.id!==id); delete store.data[id];
+    if(store.active===id)useProfile(store.profiles[0].id,true); save(); draw(); renderAll(); };
+  draw();
+  $('#npadd').onclick=()=>{ const n=$('#np').value.trim(); if(!n)return;
+    const id='p'+Date.now().toString(36); store.profiles.push({id,name:n}); store.data[id]=DEF(); save(); useProfile(id); closeModal(); };
+  $('#pclose').onclick=closeModal;
+}
+function settingsModal(){
+  const s=st.settings;
+  modal(`<h2 style="font-size:18px;margin-bottom:12px">Настройки</h2>
+    <div class="field"><label>Цель на день (XP)</label><input type="number" id="s-goal" min="10" max="300" step="10" value="${s.goal}"></div>
+    <div class="field"><label>Скорость речи: <span id="s-rv" class="tnum">${s.rate}</span>×</label>
+      <input type="range" id="s-rate" min="0.5" max="1.2" step="0.05" value="${s.rate}"></div>
+    <div class="field"><label>Тема</label><select id="s-theme">
+      <option value="system"${s.theme==='system'?' selected':''}>как в системе</option>
+      <option value="light"${s.theme==='light'?' selected':''}>светлая</option>
+      <option value="dark"${s.theme==='dark'?' selected':''}>тёмная</option></select></div>
+    <div class="switchrow"><span>Озвучка</span><input type="checkbox" id="s-tts" ${s.tts?'checked':''} style="width:22px;height:22px"></div>
+    <div class="switchrow"><span>Русская транскрипция</span><input type="checkbox" id="s-tr" ${s.translit?'checked':''} style="width:22px;height:22px"></div>
+    <div class="switchrow" style="border-bottom:1px solid var(--line)"><span>Голос pt-BR</span><span class="muted" style="font-size:13px">${ptVoice?esc(ptVoice.name):'системный'}</span></div>
+    <div style="display:grid;gap:10px;margin-top:16px">
+      <button class="btn block" id="s-save">Сохранить</button>
+      <button class="btn ghost block" id="s-reset">Сбросить прогресс профиля</button>
+    </div>`);
+  $('#s-rate').oninput=e=>{$('#s-rv').textContent=e.target.value;};
+  $('#s-save').onclick=()=>{
+    st.settings.goal=Math.max(10,Math.min(300,+$('#s-goal').value||30));
+    st.settings.rate=+$('#s-rate').value;
+    st.settings.theme=$('#s-theme').value;
+    st.settings.tts=$('#s-tts').checked?1:0;
+    st.settings.translit=$('#s-tr').checked?1:0;
+    applyTheme(); save(); renderAll(); closeModal();
+  };
+  $('#s-reset').onclick=()=>{
+    const keep=st.settings; store.data[store.active]=Object.assign(DEF(),{settings:keep});
+    st=store.data[store.active]; save(); renderAll(); closeModal(); toast('Прогресс профиля сброшен.');
+  };
+}
+function toast(msg){
+  const el=document.createElement('div');
+  el.textContent=msg;
+  el.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:95;background:var(--ink);color:var(--bg);padding:11px 16px;border-radius:999px;font-size:14px;max-width:88vw;text-align:center;box-shadow:var(--shadow)';
+  document.body.appendChild(el); setTimeout(()=>el.remove(),2600);
+}
+
+/* ---------- события ---------- */
+$$('[data-view]').forEach(b=>b.onclick=()=>showView(b.dataset.view));
+$('#btn-continue').onclick=()=>{ const n=firstUndone(); if(n)startLesson(n[0],n[1]); else startReview(); };
+$('#btn-review-cta').onclick=startReview;
+$('#btn-review').onclick=startReview;
+$('#btn-weak').onclick=startWeak;
+$('#m-profile').onclick=profileModal;
+$('#d-profile').onclick=profileModal;
+$('#d-settings').onclick=settingsModal;
+$('#ph-search').oninput=e=>renderPhrases(e.target.value);
+document.addEventListener('keydown',e=>{
+  if($('#modal-root').innerHTML&&e.key==='Escape'){closeModal();return;}
+  if(!P)return;
+  if(e.key==='Escape'){exitPlayer();return;}
+  if(e.key==='Enter'){const b=$('#pl-primary'); if(b&&!b.disabled){e.preventDefault();b.click();}return;}
+  if(/^[1-9]$/.test(e.key)){
+    const opts=$$('#player-root .opt'); const i=+e.key-1;
+    if(opts[i]&&!P.answered){opts[i].click();}
+  }
+});
+
+/* ---------- старт ---------- */
+loadLocal();
+renderGrammar();
+renderAll();
+showView('course');
+initCloud();
+})();
+</script>
